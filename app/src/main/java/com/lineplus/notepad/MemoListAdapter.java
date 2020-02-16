@@ -17,26 +17,36 @@ import java.util.ArrayList;
 public class MemoListAdapter extends RecyclerView.Adapter<MemoListAdapter.ViewHolder> {
     private ArrayList<MemoItem> items;
     private boolean showSelectButton;
+    private OnCheckMemoItemSelect onCheckMemoItemSelect;
     private boolean beforeGoneSelectButton; //이전엔 숨김상태였는지 여부 (선택 버튼 초기화를 위해)
     private int itemsCnt;
+    private ArrayList<Integer> selectedIdxs;
 
     public MemoListAdapter(){
 
     }
 
-    public MemoListAdapter(ArrayList<MemoItem> items, boolean showSelectButton){
+    public MemoListAdapter(ArrayList<MemoItem> items, boolean showSelectButton, OnCheckMemoItemSelect onCheckMemoItemSelect){
         this.items = items;
         this.showSelectButton = showSelectButton;
+        this.onCheckMemoItemSelect = onCheckMemoItemSelect;
+        selectedIdxs = new ArrayList<>();
     }
 
     public boolean isShowSelectButton() {
         return showSelectButton;
     }
 
+    public ArrayList<Integer> getSelectedIdxs() {
+        return selectedIdxs;
+    }
+
     public void setShowSelectButton(boolean showSelectButton) {
         if(showSelectButton && !this.showSelectButton){
             beforeGoneSelectButton = true;
             itemsCnt = 0;
+            selectedIdxs.clear();
+            onCheckMemoItemSelect.checkSelectedCount(selectedIdxs.size());
         }
         this.showSelectButton = showSelectButton;
     }
@@ -74,6 +84,13 @@ public class MemoListAdapter extends RecyclerView.Adapter<MemoListAdapter.ViewHo
                 @Override
                 public void onClick(View view) {
                     item.setSelected(tempTglSelect.isChecked());
+                    if(tempTglSelect.isChecked()){
+                        selectedIdxs.add(item.getIdx());
+                    }
+                    else{
+                        selectedIdxs.remove((Integer)item.getIdx());
+                    }
+                    onCheckMemoItemSelect.checkSelectedCount(selectedIdxs.size());
                 }
             });
         }

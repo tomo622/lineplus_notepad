@@ -3,10 +3,12 @@ package com.lineplus.notepad;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import androidx.annotation.Nullable;
@@ -44,7 +46,19 @@ public class MainActivity extends AppCompatActivity {
         recy_memoList = findViewById(R.id.main_recy_memoList);
 
         memoItems = new ArrayList<>();
-        memoListAdapter = new MemoListAdapter(memoItems, false);
+        memoListAdapter = new MemoListAdapter(memoItems, false, new OnCheckMemoItemSelect() {
+            @Override
+            public void checkSelectedCount(int cnt) {
+                if(cnt > 0 && !txt_deleteMemo.getText().equals(R.string.delete_memo)){
+                    txt_deleteMemo.setText(R.string.delete_memo);
+                }
+                else if (cnt == 0){
+                    txt_deleteMemo.setText(R.string.delete_all_memo);
+                }
+            }
+        });
+
+        toggleAddDeleteButton(tgl_selectMemo.isChecked());
 
         recy_memoList.setAdapter(memoListAdapter);
         recy_memoList.setLayoutManager(new LinearLayoutManager(this, RecyclerView.VERTICAL, false));
@@ -70,12 +84,39 @@ public class MainActivity extends AppCompatActivity {
         tgl_selectMemo.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                toggleAddDeleteButton(b);
                 memoListAdapter.setShowSelectButton(b);
                 memoListAdapter.notifyDataSetChanged();
             }
         });
 
+        txt_deleteMemo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //모두 삭제
+                if(txt_deleteMemo.getText().equals(R.string.delete_all_memo)){
+
+                }
+                //선택된 메모 목록 삭제
+                else{
+                    //TODO: TEST CODE
+                    ArrayList<Integer> seletedMemoIdxs = memoListAdapter.getSelectedIdxs();
+                    String temp = "";
+                    for(Integer idx : seletedMemoIdxs){
+                        temp += Integer.toString(idx);
+                        temp +=", ";
+                    }
+                    Toast.makeText(MainActivity.this, temp, Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
         setDate();
+    }
+
+    private void toggleAddDeleteButton(boolean isSelectMode){
+        imgBtn_addMemo.setVisibility(isSelectMode?View.GONE:View.VISIBLE);
+        frameLayout_deleteMemo.setVisibility(isSelectMode?View.VISIBLE:View.GONE);
     }
 
     private void setDate(){
