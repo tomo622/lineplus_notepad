@@ -1,5 +1,7 @@
 package com.lineplus.notepad;
 
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.widget.CompoundButton;
 import android.widget.FrameLayout;
@@ -9,10 +11,12 @@ import android.widget.ToggleButton;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private FrameLayout frameLayout_deleteMemo;
@@ -24,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
 
     private ArrayList<MemoItem> memoItems;
     private MemoListAdapter memoListAdapter;
+    private SwipeHelper memoListSwipeHelper;
 
 
     @Override
@@ -43,6 +48,24 @@ public class MainActivity extends AppCompatActivity {
 
         recy_memoList.setAdapter(memoListAdapter);
         recy_memoList.setLayoutManager(new LinearLayoutManager(this, RecyclerView.VERTICAL, false));
+
+        final Bitmap imgDelete = ((BitmapDrawable)getDrawable(R.drawable.ic_btn_delete)).getBitmap();
+        int deleteBtnWidth = imgDelete.getWidth() + (int)CommonFunc.dpToPx(this, 15 * 2); //삭제 이미지 너비 + 왼쪽, 오른쪽 margin 각각 15dp
+        memoListSwipeHelper = new SwipeHelper(this, recy_memoList, deleteBtnWidth) {
+            @Override
+            public void instantiateSwipeButton(RecyclerView.ViewHolder viewHolder, List<SwipeButton> swipeButtons) {
+                swipeButtons.add(new SwipeHelper.SwipeButton(
+                        imgDelete,
+                        ContextCompat.getColor(MainActivity.this, R.color.colorRed),
+                        new SwipeHelper.OnSwipeButtonClickListener() {
+                            @Override
+                            public void onClick(int pos) {
+                                // TODO: onDelete
+                            }
+                        }
+                ));
+            }
+        };
 
         tgl_selectMemo.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
