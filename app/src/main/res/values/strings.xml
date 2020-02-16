@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">LinePlusNotepad</string>
+    <string name="desc_add_memo_btn">메모 추가 버튼</string>
+    <string name="desc_memo_item_image">메모 아이템 이미지</string>
+
+    <string name="cancel">취소</string>
+    <string name="select_memo">선택</string>
+    <string name="delete_memo">삭제</string>
+    <string name="delete_all_memo">모두 삭제</string>
 </resources>

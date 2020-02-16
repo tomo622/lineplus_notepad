@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="txt_btn_frame_padding_top">3dp</dimen>
+    <dimen name="txt_btn_frame_padding_bottom">3dp</dimen>
+    <dimen name="txt_btn_frame_padding_left">5dp</dimen>
+    <dimen name="txt_btn_frame_padding_right">5dp</dimen>
+</resources>
