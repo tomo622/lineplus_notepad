@@ -38,6 +38,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //////////////////////////////////////////////////
+        // 생성
+        //////////////////////////////////////////////////
         frameLayout_deleteMemo = findViewById(R.id.main_frameLayout_deleteMemo);
         txt_deleteMemo = findViewById(R.id.main_txt_deleteMemo);
         txt_memoCount = findViewById(R.id.main_txt_memoCount);
@@ -46,7 +49,15 @@ public class MainActivity extends AppCompatActivity {
         recy_memoList = findViewById(R.id.main_recy_memoList);
 
         memoItems = new ArrayList<>();
-        memoListAdapter = new MemoListAdapter(memoItems, false, new OnCheckMemoItemSelect() {
+        /// 메모 아이템 클릭 이벤트 (선택 모드가 아닌 경우에만)
+        OnClickMemoItem onClickMemoItem = new OnClickMemoItem() {
+            @Override
+            public void onClick(int idx) {
+
+            }
+        };
+        /// 메모 아이템 선택 이벤트 (선택 모드인 경우에만)
+        OnCheckMemoItemSelect onCheckMemoItemSelect = new OnCheckMemoItemSelect() {
             @Override
             public void checkSelectedCount(int cnt) {
                 if(cnt > 0 && !txt_deleteMemo.getText().equals(R.string.delete_memo)){
@@ -56,12 +67,8 @@ public class MainActivity extends AppCompatActivity {
                     txt_deleteMemo.setText(R.string.delete_all_memo);
                 }
             }
-        });
-
-        toggleAddDeleteButton(tgl_selectMemo.isChecked());
-
-        recy_memoList.setAdapter(memoListAdapter);
-        recy_memoList.setLayoutManager(new LinearLayoutManager(this, RecyclerView.VERTICAL, false));
+        };
+        memoListAdapter = new MemoListAdapter(memoItems, false, onClickMemoItem, onCheckMemoItemSelect);
 
         final Bitmap imgDelete = ((BitmapDrawable)getDrawable(R.drawable.ic_btn_delete)).getBitmap();
         int deleteBtnWidth = imgDelete.getWidth() + (int)CommonFunc.dpToPx(this, 15 * 2); //삭제 이미지 너비 + 왼쪽, 오른쪽 margin 각각 15dp
@@ -81,6 +88,19 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
+
+        //////////////////////////////////////////////////
+        // 설정
+        //////////////////////////////////////////////////
+        toggleAddDeleteButton(tgl_selectMemo.isChecked());
+
+        recy_memoList.setAdapter(memoListAdapter);
+        recy_memoList.setLayoutManager(new LinearLayoutManager(this, RecyclerView.VERTICAL, false));
+
+
+        //////////////////////////////////////////////////
+        // 바인딩
+        //////////////////////////////////////////////////
         tgl_selectMemo.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
@@ -100,10 +120,10 @@ public class MainActivity extends AppCompatActivity {
                 //선택된 메모 목록 삭제
                 else{
                     //TODO: TEST CODE
-                    ArrayList<Integer> seletedMemoIdxs = memoListAdapter.getSelectedIdxs();
+                    ArrayList<MemoItem> seletedMemoItems = memoListAdapter.getSelectedItems();
                     String temp = "";
-                    for(Integer idx : seletedMemoIdxs){
-                        temp += Integer.toString(idx);
+                    for(MemoItem item : seletedMemoItems){
+                        temp += Integer.toString(item.getIdx());
                         temp +=", ";
                     }
                     Toast.makeText(MainActivity.this, temp, Toast.LENGTH_SHORT).show();

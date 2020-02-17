@@ -1,11 +1,15 @@
 package com.lineplus.notepad;
 
+import android.annotation.SuppressLint;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
@@ -15,38 +19,40 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 
 public class MemoListAdapter extends RecyclerView.Adapter<MemoListAdapter.ViewHolder> {
+    private ViewGroup parent;
     private ArrayList<MemoItem> items;
     private boolean showSelectButton;
+    private OnClickMemoItem onClickMemoItem;
     private OnCheckMemoItemSelect onCheckMemoItemSelect;
-    private boolean beforeGoneSelectButton; //이전엔 숨김상태였는지 여부 (선택 버튼 초기화를 위해)
-    private int itemsCnt;
-    private ArrayList<Integer> selectedIdxs;
+    private ArrayList<MemoItem> selectedItems;
 
     public MemoListAdapter(){
 
     }
 
-    public MemoListAdapter(ArrayList<MemoItem> items, boolean showSelectButton, OnCheckMemoItemSelect onCheckMemoItemSelect){
+    public MemoListAdapter(ArrayList<MemoItem> items, boolean showSelectButton, OnClickMemoItem onClickMemoItem, OnCheckMemoItemSelect onCheckMemoItemSelect){
         this.items = items;
         this.showSelectButton = showSelectButton;
+        this.onClickMemoItem = onClickMemoItem;
         this.onCheckMemoItemSelect = onCheckMemoItemSelect;
-        selectedIdxs = new ArrayList<>();
+        selectedItems = new ArrayList<>();
     }
 
     public boolean isShowSelectButton() {
         return showSelectButton;
     }
 
-    public ArrayList<Integer> getSelectedIdxs() {
-        return selectedIdxs;
+    public ArrayList<MemoItem> getSelectedItems() {
+        return selectedItems;
     }
 
     public void setShowSelectButton(boolean showSelectButton) {
-        if(showSelectButton && !this.showSelectButton){
-            beforeGoneSelectButton = true;
-            itemsCnt = 0;
-            selectedIdxs.clear();
-            onCheckMemoItemSelect.checkSelectedCount(selectedIdxs.size());
+        if(!showSelectButton && this.showSelectButton){
+            for(MemoItem selectedItem : selectedItems) {
+                selectedItem.setSelected(false);
+            }
+            selectedItems.clear();
+            onCheckMemoItemSelect.checkSelectedCount(selectedItems.size());
         }
         this.showSelectButton = showSelectButton;
     }
@@ -54,12 +60,15 @@ public class MemoListAdapter extends RecyclerView.Adapter<MemoListAdapter.ViewHo
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_memo, parent, false);
+        this.parent = parent;
+
+        View view = LayoutInflater.from(this.parent.getContext()).inflate(R.layout.item_memo, this.parent, false);
         return new MemoListAdapter.ViewHolder(view);
     }
 
+    @SuppressLint("ResourceType")
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull final ViewHolder holder, int position) {
         final MemoItem item = items.get(position);
 
         holder.tgl_select.setVisibility(showSelectButton ? View.VISIBLE : View.GONE);
@@ -70,47 +79,36 @@ public class MemoListAdapter extends RecyclerView.Adapter<MemoListAdapter.ViewHo
         holder.txt_content.setText(item.getContent());
         //holder.img_image.
 
-        if(showSelectButton){
-            //이전에 숨김상태였다면 모든 아이템들의 체크 상태를 해제한다.
-            if(beforeGoneSelectButton){
-                item.setSelected(false);
-                if(itemsCnt++ == items.size())
-                    beforeGoneSelectButton = false;
-            }
-            holder.tgl_select.setChecked(item.isSelected());
 
-            final ToggleButton tempTglSelect = holder.tgl_select;
-            tempTglSelect.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    item.setSelected(tempTglSelect.isChecked());
-                    if(tempTglSelect.isChecked()){
-                        selectedIdxs.add(item.getIdx());
-                    }
-                    else{
-                        selectedIdxs.remove((Integer)item.getIdx());
-                    }
-                    onCheckMemoItemSelect.checkSelectedCount(selectedIdxs.size());
-                }
-            });
+        //현재 아이템 선택 상태에 따라 토글 버튼을 변경
+        holder.tgl_select.setChecked(item.isSelected());
+
+        holder.tgl_select.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                toggleSelectState(item, holder.tgl_select, holder.linLayout_item, false);
+            }
+        });
+
+        //현재 아이템 선택 상태에 따라 레이아웃을 변경
+        if(item.isSelected()){
+            holder.linLayout_item.setBackgroundColor(Color.parseColor(parent.getResources().getString(R.color.colorDarkGreen)));
+        }
+        else{
+            holder.linLayout_item.setBackgroundColor(Color.parseColor(parent.getResources().getString(R.color.colorDarkGray)));
         }
 
-
-
-// Sample...
-//        int width = ((ViewGroup)parent.getParent()).getWidth(); //RecyclerView의 부모인 FrameLayout의 넓이
-//        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(width / 3, ViewGroup.LayoutParams.MATCH_PARENT);
-//
-//        holder.textViewStoreIdx.setText(Integer.toString(item.getStoreIdx()));
-//
-//        holder.textViewKeyword.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                if(menuTagButtonClickCallback != null){
-//                    menuTagButtonClickCallback.onClick(item.getKeyword());
-//                }
-//            }
-//        });
+        holder.linLayout_item.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(!showSelectButton){
+                    onClickMemoItem.onClick(item.getIdx());
+                }
+                else{
+                    toggleSelectState(item, holder.tgl_select, holder.linLayout_item, true);
+                }
+            }
+        });
     }
 
     @Override
@@ -118,7 +116,34 @@ public class MemoListAdapter extends RecyclerView.Adapter<MemoListAdapter.ViewHo
         return items.size();
     }
 
+    @SuppressLint("ResourceType")
+    private void toggleSelectState(MemoItem item, ToggleButton toggleButton, LinearLayout linearLayout, boolean handleTglBtn){
+        item.setSelected(!item.isSelected()); //상태 변경
+
+        //선택 토글버튼의 상태를 변경해줘야하는 경우
+        if(handleTglBtn){
+            toggleButton.setChecked(item.isSelected());
+        }
+
+        if(item.isSelected()){
+            linearLayout.setBackgroundColor(Color.parseColor(parent.getResources().getString(R.color.colorDarkGreen)));
+        }
+        else{
+            linearLayout.setBackgroundColor(Color.parseColor(parent.getResources().getString(R.color.colorDarkGray)));
+        }
+
+        //변경된 상태에 따라 적용
+        if(item.isSelected()){
+            selectedItems.add(item);
+        }
+        else{
+            selectedItems.remove(item);
+        }
+        onCheckMemoItemSelect.checkSelectedCount(selectedItems.size());
+    }
+
     public class ViewHolder extends RecyclerView.ViewHolder {
+        protected LinearLayout linLayout_item;
         protected TextView txt_id;
         protected TextView txt_title;
         protected TextView txt_date;
@@ -129,6 +154,7 @@ public class MemoListAdapter extends RecyclerView.Adapter<MemoListAdapter.ViewHo
         public ViewHolder(View itemView) {
             super(itemView);
 
+            linLayout_item = itemView.findViewById(R.id.imemo_linLayout_item);
             txt_id = itemView.findViewById(R.id.imemo_txt_id);
             txt_title = itemView.findViewById(R.id.imemo_txt_title);
             txt_date = itemView.findViewById(R.id.imemo_txt_date);

@@ -59,10 +59,11 @@
         android:id="@+id/memo_constLayout_center"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:background="@color/colorDarkGray"
         app:layout_constraintBottom_toTopOf="@id/memo_constLayout_bottom"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/memo_constLayout_top" >
+        app:layout_constraintTop_toBottomOf="@id/memo_constLayout_top">
 
         <TextView
             android:id="@+id/memo_txt_date"
@@ -70,24 +71,37 @@
             android:layout_height="wrap_content"
             android:text="date"
             android:textColor="@color/colorRightGray1"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/memo_edit_title"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.0" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <EditText
             android:id="@+id/memo_edit_title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:background="@null"
             android:ems="10"
+            android:hint="@string/hint_input_title"
             android:inputType="text"
-            android:text="Name"
+            app:layout_constraintBottom_toTopOf="@id/memo_edit_content"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/memo_txt_date" />
+
+        <EditText
+            android:id="@+id/memo_edit_content"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@null"
+            android:ems="10"
+            android:gravity="top"
+            android:hint="@string/hint_input_content"
+            android:inputType="textMultiLine|text"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/memo_txt_date"
-            app:layout_constraintVertical_bias="0.0" />
+            app:layout_constraintTop_toBottomOf="@id/memo_edit_title" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
