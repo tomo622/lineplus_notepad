@@ -1,5 +1,6 @@
 package com.lineplus.notepad;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
@@ -21,6 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
+    private final int INTENT_MEMO_ACTIVITY = 0;
+
     private FrameLayout frameLayout_deleteMemo;
     private TextView txt_deleteMemo;
     private TextView txt_memoCount;
@@ -52,8 +55,11 @@ public class MainActivity extends AppCompatActivity {
         /// 메모 아이템 클릭 이벤트 (선택 모드가 아닌 경우에만)
         OnClickMemoItem onClickMemoItem = new OnClickMemoItem() {
             @Override
-            public void onClick(int idx) {
-
+            public void onClick(MemoItem memoItem) {
+                Intent intent = new Intent(MainActivity.this, MemoActivity.class);
+                intent.putExtra(MemoActivity.INTENT_REQ_NEW, false);
+                intent.putExtra(MemoActivity.INTENT_REQ_ITEM, memoItem);
+                startActivityForResult(intent, INTENT_MEMO_ACTIVITY);
             }
         };
         /// 메모 아이템 선택 이벤트 (선택 모드인 경우에만)
@@ -110,6 +116,15 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        imgBtn_addMemo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this, MemoActivity.class);
+                intent.putExtra(MemoActivity.INTENT_REQ_NEW, true);
+                startActivityForResult(intent, INTENT_MEMO_ACTIVITY);
+            }
+        });
+
         txt_deleteMemo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -119,7 +134,7 @@ public class MainActivity extends AppCompatActivity {
                 }
                 //선택된 메모 목록 삭제
                 else{
-                    //TODO: TEST CODE
+                    //TODO: 선택된 아이템의 idx로 DB에서 삭제 후 리스트 갱신
                     ArrayList<MemoItem> seletedMemoItems = memoListAdapter.getSelectedItems();
                     String temp = "";
                     for(MemoItem item : seletedMemoItems){
@@ -132,6 +147,16 @@ public class MainActivity extends AppCompatActivity {
         });
 
         setDate();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == INTENT_MEMO_ACTIVITY) {
+            if(resultCode == RESULT_OK) {
+                //TODO: 리스트 갱신
+            }
+        }
     }
 
     private void toggleAddDeleteButton(boolean isSelectMode){

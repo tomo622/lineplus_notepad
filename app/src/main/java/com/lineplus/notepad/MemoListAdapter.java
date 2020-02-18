@@ -102,7 +102,7 @@ public class MemoListAdapter extends RecyclerView.Adapter<MemoListAdapter.ViewHo
             @Override
             public void onClick(View view) {
                 if(!showSelectButton){
-                    onClickMemoItem.onClick(item.getIdx());
+                    onClickMemoItem.onClick(item);
                 }
                 else{
                     toggleSelectState(item, holder.tgl_select, holder.linLayout_item, true);

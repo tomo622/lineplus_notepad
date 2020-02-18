@@ -2,7 +2,10 @@ package com.lineplus.notepad;
 
 import android.graphics.Bitmap;
 
-public class MemoItem {
+import java.io.Serializable;
+
+public class MemoItem implements Serializable {
+    private static final long serialVersionUID = 1L;
     private int idx;
     private String title;
     private String date;

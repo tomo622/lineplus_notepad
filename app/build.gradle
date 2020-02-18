@@ -2,7 +2,6 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 29
-    buildToolsVersion "29.0.0"
     defaultConfig {
         applicationId "com.lineplus.notepad"
         minSdkVersion 21
@@ -17,6 +16,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+    buildToolsVersion = '29.0.0'
 }
 
 dependencies {
