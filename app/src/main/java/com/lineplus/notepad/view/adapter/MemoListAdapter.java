@@ -77,7 +77,7 @@ public class MemoListAdapter extends RecyclerView.Adapter<MemoListAdapter.ViewHo
 
         holder.tgl_select.setVisibility(showSelectButton ? View.VISIBLE : View.GONE);
 
-        holder.txt_id.setText(Integer.toString(item.getIdx()));
+        holder.txt_id.setText(Long.toString(item.getIdx()));
         holder.txt_title.setText(item.getTitle());
         holder.txt_date.setText(item.getDate());
         holder.txt_content.setText(item.getContent());

@@ -149,7 +149,7 @@ public class MainActivity extends AppCompatActivity {
                     ArrayList<MemoItem> seletedMemoItems = memoListAdapter.getSelectedItems();
                     String temp = "";
                     for(MemoItem item : seletedMemoItems){
-                        temp += Integer.toString(item.getIdx());
+                        temp += Long.toString(item.getIdx());
                         temp +=", ";
                     }
                     Toast.makeText(MainActivity.this, temp, Toast.LENGTH_SHORT).show();

@@ -11,11 +11,13 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
+import com.lineplus.notepad.database.DatabaseManager;
 import com.lineplus.notepad.model.MemoItem;
 import com.lineplus.notepad.R;
 
@@ -93,6 +95,7 @@ public class MemoActivity extends AppCompatActivity {
                 edit_content.setText(memoItem.getContent());
             }
             else{
+                txt_date.setVisibility(View.GONE);
                 imgBnt_deleteMemo.setVisibility(View.GONE);
                 imgBtn_addMemo.setVisibility(View.GONE);
             }
@@ -103,8 +106,7 @@ public class MemoActivity extends AppCompatActivity {
             constLayout_main.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    imm.hideSoftInputFromWindow(edit_title.getWindowToken(), 0);
-                    imm.hideSoftInputFromWindow(edit_content.getWindowToken(), 0);
+                    hideKeyboard();
                 }
             });
 
@@ -132,30 +134,89 @@ public class MemoActivity extends AppCompatActivity {
         }
     }
 
-    private void saveMemo(boolean isFinish){
-        //TODO : 데이터 변경이 있는 경우 저장으로 RESULT_OK, 아니면 취소로 판단하고 RESULT_CANCEL
-
-
-        //TODO: 완료 버튼 만들기, 완료 누르면 데이터 변경 있는 경우 저장으로 판단하고 저장(), 화면은 닫지 않고 키보드 포커스만 제거한다.
-        //저장 성공 후 idx 가져와야한다. 그 상태에서 다시 수정을 위해 필요하다.
-        //저장 후 또한 isNew상태를 변경한다.
-
-        if(isNew){
-            //idx 0이거나 없을것
-            //insert
+    private void hideKeyboard(){
+        if(imm.isActive()){
+            imm.hideSoftInputFromWindow(edit_title.getWindowToken(), 0);
+            imm.hideSoftInputFromWindow(edit_content.getWindowToken(), 0);
         }
+    }
+
+    private void saveMemo(boolean isFinish){
+        long idx = 0; //삽입이나 업데이트 이후에 해당 idx를 반환 받는다.
+
+        //삽입
+        if(isNew){
+            if(memoItem.getIdx() != 0){
+                Log.e("MEMO ACTIVITY", "Is not new memo.");
+                return;
+            }
+
+            String title = edit_title.getText().toString();
+            String content = edit_content.getText().toString();
+
+            //제목, 내용 둘 다 입력이 없는 경우
+            if(title.isEmpty() && content.isEmpty()){
+                completeSave(isFinish, false);
+                return;
+            }
+
+            //데이터 삽입
+            memoItem.setTitle(title);
+            memoItem.setContent(content);
+            idx = DatabaseManager.getInstance(this).insertMemo(memoItem);
+
+            //데이터 삽입 실패한 경우
+            if(idx <= 0){
+                Toast.makeText(MemoActivity.this, "저장을 실패했습니다.", Toast.LENGTH_SHORT).show();
+                Log.e("MEMO ACTIVITY", "Insert memo fail.");
+
+                completeSave(isFinish, false);
+            }
+            //데이터 삽입 성공한 경우
+            else{
+                //현재 데이터 갱신
+                MemoItem insertedMemoItem = DatabaseManager.getInstance(this).selectMemoByIdx(idx);
+                memoItem.setIdx(insertedMemoItem.getIdx());
+                memoItem.setDate(insertedMemoItem.getDate());
+                memoItem.setTitle(insertedMemoItem.getTitle());
+                memoItem.setContent(insertedMemoItem.getContent());
+
+                txt_date.setText(memoItem.getDate());
+                edit_title.setText(memoItem.getTitle());
+                edit_content.setText(memoItem.getContent());
+
+                //수정모드로 변경
+                isNew = false;
+                txt_date.setVisibility(View.VISIBLE);
+                imgBnt_deleteMemo.setVisibility(View.VISIBLE);
+                imgBtn_addMemo.setVisibility(View.VISIBLE);
+
+                Toast.makeText(MemoActivity.this, "저장되었습니다.", Toast.LENGTH_SHORT).show();
+
+                completeSave(isFinish, true);
+            }
+        }
+        //업데이트
         else{
             //idx 있음
             //alter
         }
+    }
 
+    private void completeSave(boolean isFinish, boolean isSuccess){
+        /// 뒤로
         if(isFinish){
-            //뒤로가기 (종료)
-            setResult(RESULT_OK, null);
+            if(isSuccess){
+                setResult(RESULT_OK, null);
+            }
+            else{
+                setResult(RESULT_CANCELED, null);
+            }
             finish();
         }
+        /// 완료
         else{
-            //완료
+            hideKeyboard();
         }
     }
 }

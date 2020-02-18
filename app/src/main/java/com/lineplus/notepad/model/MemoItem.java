@@ -6,7 +6,7 @@ import java.io.Serializable;
 
 public class MemoItem implements Serializable {
     private static final long serialVersionUID = 1L;
-    private int idx;
+    private long idx;
     private String title;
     private String date;
     private String content;
@@ -17,7 +17,7 @@ public class MemoItem implements Serializable {
 
     }
 
-    public MemoItem(int idx, String title, String date, String content, Bitmap image) {
+    public MemoItem(long idx, String title, String date, String content, Bitmap image) {
         this.idx = idx;
         this.title = title;
         this.date = date;
@@ -25,7 +25,7 @@ public class MemoItem implements Serializable {
         this.image = image;
     }
 
-    public int getIdx() {
+    public long getIdx() {
         return idx;
     }
 
@@ -49,7 +49,7 @@ public class MemoItem implements Serializable {
         return selected;
     }
 
-    public void setIdx(int idx) {
+    public void setIdx(long idx) {
         this.idx = idx;
     }
 
