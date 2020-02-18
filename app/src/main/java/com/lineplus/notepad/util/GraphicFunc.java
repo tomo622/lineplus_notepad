@@ -1,10 +1,10 @@
-package com.lineplus.notepad;
+package com.lineplus.notepad.util;
 
 import android.content.Context;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 
-public class CommonFunc {
+public class GraphicFunc {
 
     public static float dpToPx(Context context, float dp){
         DisplayMetrics dm = context.getResources().getDisplayMetrics();

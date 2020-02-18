@@ -1,4 +1,4 @@
-package com.lineplus.notepad;
+package com.lineplus.notepad.view;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -17,6 +17,15 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.lineplus.notepad.database.DatabaseManager;
+import com.lineplus.notepad.util.GraphicFunc;
+import com.lineplus.notepad.model.MemoItem;
+import com.lineplus.notepad.view.adapter.MemoListAdapter;
+import com.lineplus.notepad.event.OnCheckMemoItemSelect;
+import com.lineplus.notepad.event.OnClickMemoItem;
+import com.lineplus.notepad.R;
+import com.lineplus.notepad.view.helper.SwipeHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -77,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
         memoListAdapter = new MemoListAdapter(memoItems, false, onClickMemoItem, onCheckMemoItemSelect);
 
         final Bitmap imgDelete = ((BitmapDrawable)getDrawable(R.drawable.ic_btn_delete)).getBitmap();
-        int deleteBtnWidth = imgDelete.getWidth() + (int)CommonFunc.dpToPx(this, 15 * 2); //삭제 이미지 너비 + 왼쪽, 오른쪽 margin 각각 15dp
+        int deleteBtnWidth = imgDelete.getWidth() + (int) GraphicFunc.dpToPx(this, 15 * 2); //삭제 이미지 너비 + 왼쪽, 오른쪽 margin 각각 15dp
         memoListSwipeHelper = new SwipeHelper(this, recy_memoList, deleteBtnWidth) {
             @Override
             public void instantiateSwipeButton(RecyclerView.ViewHolder viewHolder, List<SwipeButton> swipeButtons) {
@@ -98,6 +107,8 @@ public class MainActivity extends AppCompatActivity {
         //////////////////////////////////////////////////
         // 설정
         //////////////////////////////////////////////////
+        DatabaseManager.getInstance(this); //데이터베이스 및 테이블 생성을 위해 호출
+
         toggleAddDeleteButton(tgl_selectMemo.isChecked());
 
         recy_memoList.setAdapter(memoListAdapter);

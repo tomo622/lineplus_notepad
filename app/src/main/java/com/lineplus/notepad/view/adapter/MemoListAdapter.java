@@ -1,8 +1,7 @@
-package com.lineplus.notepad;
+package com.lineplus.notepad.view.adapter;
 
 import android.annotation.SuppressLint;
 import android.graphics.Color;
-import android.graphics.Paint;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +14,11 @@ import android.widget.ToggleButton;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.lineplus.notepad.R;
+import com.lineplus.notepad.event.OnCheckMemoItemSelect;
+import com.lineplus.notepad.event.OnClickMemoItem;
+import com.lineplus.notepad.model.MemoItem;
 
 import java.util.ArrayList;
 

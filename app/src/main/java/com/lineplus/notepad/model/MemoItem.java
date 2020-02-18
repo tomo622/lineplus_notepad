@@ -1,4 +1,4 @@
-package com.lineplus.notepad;
+package com.lineplus.notepad.model;
 
 import android.graphics.Bitmap;
 
