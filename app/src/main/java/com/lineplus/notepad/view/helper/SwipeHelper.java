@@ -30,6 +30,7 @@ public abstract class SwipeHelper extends ItemTouchHelper.SimpleCallback {
     private float swipeThreshold = 0.5f;
     private Map<Integer, List<SwipeButton>> buttonsBuffer;
     private Queue<Integer> recoverQueue;
+    private boolean useFlag;
 
     private GestureDetector.SimpleOnGestureListener gestureListener = new GestureDetector.SimpleOnGestureListener(){
         @Override
@@ -50,6 +51,7 @@ public abstract class SwipeHelper extends ItemTouchHelper.SimpleCallback {
             Point point = new Point((int) e.getRawX(), (int) e.getRawY());
 
             RecyclerView.ViewHolder swipedViewHolder = recyclerView.findViewHolderForAdapterPosition(swipedPos);
+            if(swipedViewHolder == null) return false;
             View swipedItem = swipedViewHolder.itemView;
             Rect rect = new Rect();
             swipedItem.getGlobalVisibleRect(rect);
@@ -84,12 +86,18 @@ public abstract class SwipeHelper extends ItemTouchHelper.SimpleCallback {
             }
         };
         BUTTON_WIDTH = width;
+        useFlag = true;
         attachSwipe();
     }
 
     @Override
     public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
         return false;
+    }
+
+    @Override
+    public boolean isItemViewSwipeEnabled() {
+        return useFlag;
     }
 
     @Override
@@ -193,6 +201,10 @@ public abstract class SwipeHelper extends ItemTouchHelper.SimpleCallback {
     }
 
     public abstract void instantiateSwipeButton(RecyclerView.ViewHolder viewHolder, List<SwipeButton> swipeButtons);
+
+    public void useSwipe(boolean  use){
+        this.useFlag = use;
+    }
 
     public static class SwipeButton {
         private Bitmap img;

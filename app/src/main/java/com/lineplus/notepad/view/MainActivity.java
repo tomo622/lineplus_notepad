@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.FrameLayout;
@@ -27,6 +28,7 @@ import com.lineplus.notepad.event.OnClickMemoItem;
 import com.lineplus.notepad.R;
 import com.lineplus.notepad.view.helper.SwipeHelper;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -86,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
         memoListAdapter = new MemoListAdapter(memoItems, false, onClickMemoItem, onCheckMemoItemSelect);
 
         final Bitmap imgDelete = ((BitmapDrawable)getDrawable(R.drawable.ic_btn_delete)).getBitmap();
-        int deleteBtnWidth = imgDelete.getWidth() + (int) GraphicFunc.dpToPx(this, 15 * 2); //삭제 이미지 너비 + 왼쪽, 오른쪽 margin 각각 15dp
+        final int deleteBtnWidth = imgDelete.getWidth() + (int) GraphicFunc.dpToPx(this, 15 * 2); //삭제 이미지 너비 + 왼쪽, 오른쪽 margin 각각 15dp
         memoListSwipeHelper = new SwipeHelper(this, recy_memoList, deleteBtnWidth) {
             @Override
             public void instantiateSwipeButton(RecyclerView.ViewHolder viewHolder, List<SwipeButton> swipeButtons) {
@@ -96,13 +98,14 @@ public class MainActivity extends AppCompatActivity {
                         new SwipeHelper.OnSwipeButtonClickListener() {
                             @Override
                             public void onClick(int pos) {
-                                // TODO: onDelete
+                                ArrayList<MemoItem> deleteMemo = new ArrayList<>();
+                                deleteMemo.add(memoItems.get(pos));
+                                deleteData(deleteMemo);
                             }
                         }
                 ));
             }
         };
-
 
         //////////////////////////////////////////////////
         // 설정
@@ -124,6 +127,12 @@ public class MainActivity extends AppCompatActivity {
                 toggleAddDeleteButton(b);
                 memoListAdapter.setShowSelectButton(b);
                 memoListAdapter.notifyDataSetChanged();
+                if(b){
+                    memoListSwipeHelper.useSwipe(false);
+                }
+                else{
+                    memoListSwipeHelper.useSwipe(true);
+                }
             }
         });
 
@@ -140,24 +149,18 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 //모두 삭제
-                if(txt_deleteMemo.getText().equals(R.string.delete_all_memo)){
-
+                if(txt_deleteMemo.getText().toString().equals(getResources().getString(R.string.delete_all_memo))){
+                    deleteData(memoItems);
                 }
                 //선택된 메모 목록 삭제
                 else{
-                    //TODO: 선택된 아이템의 idx로 DB에서 삭제 후 리스트 갱신
                     ArrayList<MemoItem> seletedMemoItems = memoListAdapter.getSelectedItems();
-                    String temp = "";
-                    for(MemoItem item : seletedMemoItems){
-                        temp += Long.toString(item.getIdx());
-                        temp +=", ";
-                    }
-                    Toast.makeText(MainActivity.this, temp, Toast.LENGTH_SHORT).show();
+                    deleteData(seletedMemoItems);
                 }
             }
         });
 
-        setDate();
+        setData();
     }
 
     @Override
@@ -165,7 +168,7 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == INTENT_MEMO_ACTIVITY) {
             if(resultCode == RESULT_OK) {
-                setDate();
+                setData();
             }
         }
     }
@@ -175,7 +178,27 @@ public class MainActivity extends AppCompatActivity {
         frameLayout_deleteMemo.setVisibility(isSelectMode?View.VISIBLE:View.GONE);
     }
 
-    private void setDate(){
+    private void deleteData(ArrayList<MemoItem> memoItems){
+        //TODO: 정말 삭제하시겠습니까?
+
+        long idxs[] = new long[memoItems.size()];
+        for(int i = 0; i < memoItems.size(); i++){
+            idxs[i] = memoItems.get(i).getIdx();
+        }
+
+        int deletedCnt = DatabaseManager.getInstance(this).deleteMemoByIdx(idxs);
+        if(deletedCnt > 0){
+            Toast.makeText(MainActivity.this, "삭제 되었습니다.", Toast.LENGTH_SHORT).show();
+            setData();
+            tgl_selectMemo.setChecked(false);
+        }
+        else{
+            Toast.makeText(MainActivity.this, "삭제를 실패했습니다.", Toast.LENGTH_SHORT).show();
+            Log.e("MAIN ACTIVITY", "Delete memo fail.");
+        }
+    }
+
+    private void setData(){
         int memoItemCnt = setMemoListData();
         txt_memoCount.setText(Integer.toString(memoItemCnt));
     }
@@ -185,6 +208,13 @@ public class MainActivity extends AppCompatActivity {
 
         memoItems.addAll(DatabaseManager.getInstance(this).selectMemo());
         memoListAdapter.notifyDataSetChanged();
+
+        if(memoItems.size() > 0){
+            tgl_selectMemo.setVisibility(View.VISIBLE);
+        }
+        else{
+            tgl_selectMemo.setVisibility(View.GONE);
+        }
 
         return memoItems.size();
     }

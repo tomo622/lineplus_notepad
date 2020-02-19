@@ -109,6 +109,9 @@ public class DatabaseManager {
      * @return 추가된 row idx
      */
     public long insertMemo(MemoItem memoItem){
+        if(memoItem == null){
+            return -1;
+        }
         ContentValues contentValues = new ContentValues();
         contentValues.put("TITLE", memoItem.getTitle());
         contentValues.put("CONTENT", memoItem.getContent());
@@ -116,15 +119,23 @@ public class DatabaseManager {
     }
 
     /**
-     * @param idx
+     * @param idxs
      * @return 삭제된 row 개수
      */
-    public int deleteMemoByIdx(long[] idx){
-        String selection = "IDX = ?";
-        String[] selectionArgs = new String[idx.length];
-        for(int i = 0; i < idx.length; i++){
-            selectionArgs[i] = Long.toString(idx[i]);
+    public int deleteMemoByIdx(long[] idxs){
+        if(idxs.length <= 0){
+            return 0;
         }
+
+        String[] selectionArgs = new String[idxs.length];
+        String selection = "IDX = ?";
+        selectionArgs[0] = Long.toString(idxs[0]);
+
+        for(int i = 1; i < idxs.length; i++){
+            selection += " OR IDX = ?";
+            selectionArgs[i] = Long.toString(idxs[i]);
+        }
+
         return db.delete(TABLE_NAME_MEMO, selection, selectionArgs);
     }
 
@@ -133,6 +144,10 @@ public class DatabaseManager {
      * @return 수정된 row 개수
      */
     public int updateMemoById(MemoItem memoItem){
+        if(memoItem == null){
+            return 0;
+        }
+
         ContentValues contentValues = new ContentValues();
         contentValues.put("TITLE", memoItem.getTitle());
         contentValues.put("CONTENT", memoItem.getContent());

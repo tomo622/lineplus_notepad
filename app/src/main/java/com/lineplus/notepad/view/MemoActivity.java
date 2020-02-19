@@ -29,7 +29,7 @@ public class MemoActivity extends AppCompatActivity {
     private boolean isNew;
     private MemoItem memoItem = null;
     private boolean changedFlag;
-    private boolean doUpdateMemoList; //한번이라도 데이터가 변경 또는 추가된다면 true로 변경 (메인 화면으로 돌아가서 목록을 갱신할지 여부를 결정)
+    private boolean doUpdateMemoList; //한번이라도 데이터가 변경 또는 추가, 삭제 된다면 true로 변경 (메인 화면으로 돌아가서 목록을 갱신할지 여부를 결정)
 
     private InputMethodManager imm;
 
@@ -118,6 +118,13 @@ public class MemoActivity extends AppCompatActivity {
             edit_title.addTextChangedListener(tw);
             edit_content.addTextChangedListener(tw);
 
+            imgBnt_deleteMemo.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    deleteMemo();
+                }
+            });
+
             imgBtn_addMemo.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -200,9 +207,27 @@ public class MemoActivity extends AppCompatActivity {
         }
     }
 
+    private void deleteMemo(){
+        //TODO: 정말 삭제하시겠습니까?
+
+        long idxs[] = new long[1];
+        idxs[0] = memoItem.getIdx();
+
+        int deletedCnt = DatabaseManager.getInstance(this).deleteMemoByIdx(idxs);
+        if(deletedCnt > 0){
+            Toast.makeText(MemoActivity.this, "삭제 되었습니다.", Toast.LENGTH_SHORT).show();
+            doUpdateMemoList = true;
+            complete(true);
+        }
+        else{
+            Toast.makeText(MemoActivity.this, "삭제를 실패했습니다.", Toast.LENGTH_SHORT).show();
+            Log.e("MEMO ACTIVITY", "Delete memo fail.");
+        }
+    }
+
     private void saveMemo(boolean isFinish){
         if(changedFlag == false){
-            completeSave(isFinish);
+            complete(isFinish);
             return;
         }
 
@@ -218,7 +243,7 @@ public class MemoActivity extends AppCompatActivity {
 
             //제목, 내용 둘 다 입력이 없는 경우
             if(title.isEmpty() && content.isEmpty()){
-                completeSave(isFinish);
+                complete(isFinish);
                 return;
             }
 
@@ -228,15 +253,15 @@ public class MemoActivity extends AppCompatActivity {
             long idx = DatabaseManager.getInstance(this).insertMemo(memoItem);
 
             //데이터 삽입 실패한 경우
-            if(idx <= 0){
+            if(idx < 0){
                 Toast.makeText(MemoActivity.this, "저장을 실패했습니다.", Toast.LENGTH_SHORT).show();
                 Log.e("MEMO ACTIVITY", "Insert memo fail.");
 
-                completeSave(isFinish);
+                complete(isFinish);
             }
             //데이터 삽입 성공한 경우
             else{
-                successProc(isFinish, idx);
+                saveSuccessProc(isFinish, idx);
             }
         }
         //업데이트
@@ -251,7 +276,7 @@ public class MemoActivity extends AppCompatActivity {
 
             //제목, 내용 둘 다 입력이 없는 경우
             if(title.isEmpty() && content.isEmpty()){
-                completeSave(isFinish);
+                complete(isFinish);
                 return;
             }
 
@@ -265,16 +290,16 @@ public class MemoActivity extends AppCompatActivity {
                 Toast.makeText(MemoActivity.this, "저장을 실패했습니다.", Toast.LENGTH_SHORT).show();
                 Log.e("MEMO ACTIVITY", "Upate memo fail.");
 
-                completeSave(isFinish);
+                complete(isFinish);
             }
             //데이터 수정 성공한 경우
             else{
-                successProc(isFinish, memoItem.getIdx());
+                saveSuccessProc(isFinish, memoItem.getIdx());
             }
         }
     }
 
-    private void successProc(boolean isFinish, long idx){
+    private void saveSuccessProc(boolean isFinish, long idx){
         if(!isFinish){
             //현재 데이터 갱신
             MemoItem insertedMemoItem = DatabaseManager.getInstance(this).selectMemoByIdx(idx);
@@ -301,10 +326,10 @@ public class MemoActivity extends AppCompatActivity {
 
         doUpdateMemoList = true;
         //Toast.makeText(MemoActivity.this, "저장되었습니다.", Toast.LENGTH_SHORT).show();
-        completeSave(isFinish);
+        complete(isFinish);
     }
 
-    private void completeSave(boolean isFinish){
+    private void complete(boolean isFinish){
         /// 뒤로
         if(isFinish){
             if(doUpdateMemoList){
