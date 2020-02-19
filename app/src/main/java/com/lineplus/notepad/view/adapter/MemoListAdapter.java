@@ -20,7 +20,9 @@ import com.lineplus.notepad.event.OnCheckMemoItemSelect;
 import com.lineplus.notepad.event.OnClickMemoItem;
 import com.lineplus.notepad.model.MemoItem;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class MemoListAdapter extends RecyclerView.Adapter<MemoListAdapter.ViewHolder> {
     private ViewGroup parent;
@@ -79,7 +81,21 @@ public class MemoListAdapter extends RecyclerView.Adapter<MemoListAdapter.ViewHo
 
         holder.txt_id.setText(Long.toString(item.getIdx()));
         holder.txt_title.setText(item.getTitle());
-        holder.txt_date.setText(item.getDate());
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date date = new Date();
+        String todayTokens[] = sdf.format(date).split(" ");
+        String dateTokens[] = item.getDate().split(" ");
+        if(todayTokens.length == 2 && dateTokens.length == 2){
+            if(todayTokens[0].equals(dateTokens[0])){
+                holder.txt_date.setText(dateTokens[1]); //오늘 날짜는 시간만 표시
+            }
+            else{
+                holder.txt_date.setText(dateTokens[0]); //이전 날짜는 날짜만 표시
+            }
+        }
+        else{
+            holder.txt_date.setText(item.getDate());
+        }
         holder.txt_content.setText(item.getContent());
         //holder.img_image.
 

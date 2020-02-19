@@ -165,7 +165,7 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == INTENT_MEMO_ACTIVITY) {
             if(resultCode == RESULT_OK) {
-                //TODO: 리스트 갱신
+                setDate();
             }
         }
     }
@@ -183,17 +183,7 @@ public class MainActivity extends AppCompatActivity {
     private int setMemoListData(){
         memoItems.clear();
 
-        //TODO: TESTCODE
-        for(int i = 0; i < 40; i++) {
-            String cnt = Integer.toString(i + 1);
-            String title = "title " + cnt;
-            String date = "date " + cnt;
-            String content = "content " + cnt;
-            MemoItem memoItem = new MemoItem(i, title, date, content, null);
-
-            memoItems.add(memoItem);
-        }
-
+        memoItems.addAll(DatabaseManager.getInstance(this).selectMemo());
         memoListAdapter.notifyDataSetChanged();
 
         return memoItems.size();

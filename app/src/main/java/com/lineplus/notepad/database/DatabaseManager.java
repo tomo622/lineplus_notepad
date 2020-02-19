@@ -7,6 +7,11 @@ import android.database.sqlite.SQLiteDatabase;
 
 import com.lineplus.notepad.model.MemoItem;
 
+import java.lang.reflect.Array;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+
 public class DatabaseManager {
     private static DatabaseManager instance = null;
 
@@ -46,6 +51,33 @@ public class DatabaseManager {
         db = context.openOrCreateDatabase(DB_NAME, context.MODE_PRIVATE, null);
         db.execSQL(SQL_CREATE_MEMO_TABLE);
         db.execSQL(SQL_CREATE_IMAGE_TABLE);
+    }
+
+    public ArrayList<MemoItem> selectMemo(){
+        ArrayList<MemoItem> memoItems = new ArrayList<>();
+
+        Cursor cursor = db.query(TABLE_NAME_MEMO, null, null, null, null, null, null);
+
+        if(cursor != null){
+            cursor.moveToFirst();
+
+            while(cursor.isAfterLast() == false){
+                if(cursor.getColumnCount() != MEMO_COLUMN_CNT){
+                    continue;
+                }
+
+                MemoItem memoItem = new MemoItem();
+                memoItem.setIdx(Long.parseLong(cursor.getString(0)));
+                memoItem.setTitle(cursor.getString(1));
+                memoItem.setDate(cursor.getString(2));
+                memoItem.setContent(cursor.getString(3));
+                memoItems.add(memoItem);
+
+                cursor.moveToNext();
+            }
+        }
+
+        return memoItems;
     }
 
     public MemoItem selectMemoByIdx(long idx){
@@ -94,5 +126,24 @@ public class DatabaseManager {
             selectionArgs[i] = Long.toString(idx[i]);
         }
         return db.delete(TABLE_NAME_MEMO, selection, selectionArgs);
+    }
+
+    /**
+     * @param memoItem
+     * @return 수정된 row 개수
+     */
+    public int updateMemoById(MemoItem memoItem){
+        ContentValues contentValues = new ContentValues();
+        contentValues.put("TITLE", memoItem.getTitle());
+        contentValues.put("CONTENT", memoItem.getContent());
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date date = new Date();
+        contentValues.put("DATE", sdf.format(date));
+
+        String selection = "IDX = ?";
+        String[] selectionArgs = new String[1];
+        selectionArgs[0] = Long.toString(memoItem.getIdx());
+
+        return db.update(TABLE_NAME_MEMO, contentValues, selection, selectionArgs);
     }
 }
