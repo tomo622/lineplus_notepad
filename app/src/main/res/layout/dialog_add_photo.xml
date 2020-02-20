@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_round2"
+    android:divider="@drawable/layout_divider"
+    android:orientation="vertical"
+    tools:context=".view.AddPhotoDialog">
+
+    <Button
+        android:id="@+id/addPhoto_btn_takePicture"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/btn_green"
+        android:text="@string/add_photo_take_picture"
+        android:textColor="@color/colorGreen" />
+
+    <Button
+        android:id="@+id/addPhoto_btn_fromAlbum"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/btn_green"
+        android:text="@string/add_photo_from_album"
+        android:textColor="@color/colorGreen" />
+
+    <Button
+        android:id="@+id/addPhoto_btn_inputUrl"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/btn_green"
+        android:text="@string/add_photo_input_url"
+        android:textColor="@color/colorGreen" />
+</LinearLayout>

@@ -134,7 +134,7 @@
 
     <include
         android:id="@+id/memo_include_slide"
-        layout="@layout/activity_photo"
+        layout="@layout/view_photo"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:visibility="invisible"

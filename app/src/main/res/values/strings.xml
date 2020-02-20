@@ -15,4 +15,7 @@
     <string name="delete_all_memo">모두 삭제</string>
     <string name="select_photo">선택</string>
     <string name="delete_photo">삭제</string>
+    <string name="add_photo_take_picture">사진 찍기</string>
+    <string name="add_photo_from_album">사진 보관함</string>
+    <string name="add_photo_input_url">URL 입력</string>
 </resources>

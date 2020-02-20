@@ -57,8 +57,7 @@ public class MemoActivity extends AppCompatActivity implements DataObservable {
     private ImageButton imgBtn_addMemo;
     private ToggleButton tgl_photo;
 
-    private ConstraintLayout constLayout_transparent;
-    private ConstraintLayout constLayout_untransparent;
+    private ViewPhoto viewPhoto;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -83,10 +82,7 @@ public class MemoActivity extends AppCompatActivity implements DataObservable {
             imgBnt_deleteMemo = findViewById(R.id.memo_imgBnt_deleteMemo);
             imgBtn_addMemo = findViewById(R.id.memo_imgBtn_addMemo);
             tgl_photo = findViewById(R.id.memo_tgl_photo);
-
-
-            constLayout_transparent = findViewById(R.id.photo_constLayout_transparent);
-            constLayout_untransparent = findViewById(R.id.photo_constLayout_untransparent);
+            viewPhoto = new ViewPhoto(this);
 
             //////////////////////////////////////////////////
             // 설정(변경 필요 없는 설정)
@@ -169,30 +165,7 @@ public class MemoActivity extends AppCompatActivity implements DataObservable {
                 }
             });
 
-            constLayout_transparent.setOnTouchListener(new View.OnTouchListener() {
-                @Override
-                public boolean onTouch(View view, MotionEvent motionEvent) {
-                    if(tgl_photo.isChecked()){
-                        tgl_photo.setChecked(false);
-                        return true;
-                    }
-                    else{
-                        return false;
-                    }
-                }
-            });
 
-            constLayout_untransparent.setOnTouchListener(new View.OnTouchListener() {
-                @Override
-                public boolean onTouch(View view, MotionEvent motionEvent) {
-                    if(tgl_photo.isChecked()){
-                        return true;
-                    }
-                    else{
-                        return false;
-                    }
-                }
-            });
             init(true);
 
         }catch (Exception e) {
@@ -254,6 +227,10 @@ public class MemoActivity extends AppCompatActivity implements DataObservable {
             imgBnt_deleteMemo.setVisibility(View.GONE);
             imgBtn_addMemo.setVisibility(View.GONE);
         }
+    }
+
+    public ToggleButton getTgl_photo() {
+        return tgl_photo;
     }
 
     @Override
