@@ -1,8 +1,8 @@
 package com.lineplus.notepad.view;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -22,20 +22,24 @@ import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
+import com.lineplus.notepad.data.DataManager;
+import com.lineplus.notepad.data.DataObservable;
+import com.lineplus.notepad.data.DataObserver;
+import com.lineplus.notepad.data.DataObserverNotice;
 import com.lineplus.notepad.database.DatabaseManager;
 import com.lineplus.notepad.model.MemoItem;
 import com.lineplus.notepad.R;
 
-public class MemoActivity extends AppCompatActivity {
+public class MemoActivity extends AppCompatActivity implements DataObservable {
     public static final String INTENT_REQ_NEW = "INTENT_REQ_NEW";
     public static final String INTENT_REQ_ITEM = "INTENT_REQ_ITEM";
     private boolean isNew;
     private MemoItem memoItem = null;
     private boolean changedFlag;
-    private boolean doUpdateMemoList; //한번이라도 데이터가 변경 또는 추가, 삭제 된다면 true로 변경 (메인 화면으로 돌아가서 목록을 갱신할지 여부를 결정)
 
     private InputMethodManager imm;
 
@@ -85,6 +89,11 @@ public class MemoActivity extends AppCompatActivity {
             constLayout_untransparent = findViewById(R.id.photo_constLayout_untransparent);
 
             //////////////////////////////////////////////////
+            // 설정(변경 필요 없는 설정)
+            //////////////////////////////////////////////////
+            DataObserver.getInstance().register(this);
+
+            //////////////////////////////////////////////////
             // 바인딩
             //////////////////////////////////////////////////
             constLayout_main.setOnClickListener(new View.OnClickListener() {
@@ -97,7 +106,7 @@ public class MemoActivity extends AppCompatActivity {
             View.OnClickListener onClickBackBtn = new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    saveMemo(true);
+                    saveMemoEx(true);
                 }
             };
             constLayout_back.setOnClickListener(onClickBackBtn);
@@ -107,7 +116,7 @@ public class MemoActivity extends AppCompatActivity {
             View.OnClickListener onClickSaveBtn = new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    saveMemo(false);
+                    saveMemoEx(false);
                 }
             };
             frameLayout_save.setOnClickListener(onClickSaveBtn);
@@ -137,7 +146,7 @@ public class MemoActivity extends AppCompatActivity {
             imgBnt_deleteMemo.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    deleteMemo();
+                    deleteMemoEx();
                 }
             });
 
@@ -191,6 +200,12 @@ public class MemoActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        DataObserver.getInstance().unregister(this);
+    }
+
     private void init(boolean isCreate){
         //최초 생성되어 초기화되는 경우 intent로부터 초기 데이터와 생성/수정 여부를 결정한다.
         if(isCreate){
@@ -233,7 +248,6 @@ public class MemoActivity extends AppCompatActivity {
 
         frameLayout_save.setVisibility(View.GONE);
         toggleChangedFlag(false);
-        doUpdateMemoList = false;
 
         if(isNew){
             txt_date.setVisibility(View.GONE);
@@ -242,10 +256,42 @@ public class MemoActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void notify(DataObserverNotice dataObserverNotice) {
+        //완료 버튼에 의한 추가, 수정만 들어온다.
+        if(dataObserverNotice.getType().equals(DataObserverNotice.TYPE.INSERT)){
+            if(dataObserverNotice.isResult()){
+                long insertedIdx = dataObserverNotice.getLparam1();
+                refreshData(insertedIdx);
+            }
+            else{
+
+            }
+        }
+        else if(dataObserverNotice.getType().equals(DataObserverNotice.TYPE.UPDATE)){
+            if(dataObserverNotice.isResult()){
+                refreshData(memoItem.getIdx());
+            }
+            else{
+            }
+        }
+    }
+
     private void hideKeyboard(){
         if(imm.isActive()){
             imm.hideSoftInputFromWindow(edit_title.getWindowToken(), 0);
             imm.hideSoftInputFromWindow(edit_content.getWindowToken(), 0);
+        }
+    }
+
+    private void finishMemo(boolean isBack){
+        //뒤로
+        if(isBack){
+            finish();
+        }
+        //완료
+        else{
+            hideKeyboard();
         }
     }
 
@@ -313,142 +359,94 @@ public class MemoActivity extends AppCompatActivity {
         view.startAnimation(animate);
     }
 
-    private void deleteMemo(){
-        //TODO: 정말 삭제하시겠습니까?
-
-        long idxs[] = new long[1];
-        idxs[0] = memoItem.getIdx();
-
-        int deletedCnt = DatabaseManager.getInstance(this).deleteMemoByIdx(idxs);
-        if(deletedCnt > 0){
-            Toast.makeText(MemoActivity.this, "삭제 되었습니다.", Toast.LENGTH_SHORT).show();
-            doUpdateMemoList = true;
-            complete(true);
-        }
-        else{
-            Toast.makeText(MemoActivity.this, "삭제를 실패했습니다.", Toast.LENGTH_SHORT).show();
-            Log.e("MEMO ACTIVITY", "Delete memo fail.");
-        }
-    }
-
-    private void saveMemo(boolean isFinish){
+    private void saveMemoEx(boolean isBack){
         if(changedFlag == false){
-            complete(isFinish);
+            finishMemo(isBack);
             return;
         }
-
-        //삽입
-        if(isNew){
-            if(memoItem.getIdx() != 0){
+        else{
+            //데이터 확인
+            if(isNew && memoItem.getIdx() != 0){
                 Log.e("MEMO ACTIVITY", "Is not new memo.");
                 return;
             }
-
-            String title = edit_title.getText().toString();
-            String content = edit_content.getText().toString();
-
-            //제목, 내용 둘 다 입력이 없는 경우
-            if(title.isEmpty() && content.isEmpty()){
-                complete(isFinish);
-                return;
-            }
-
-            //데이터 삽입
-            memoItem.setTitle(title);
-            memoItem.setContent(content);
-            long idx = DatabaseManager.getInstance(this).insertMemo(memoItem);
-
-            //데이터 삽입 실패한 경우
-            if(idx < 0){
-                Toast.makeText(MemoActivity.this, "저장을 실패했습니다.", Toast.LENGTH_SHORT).show();
-                Log.e("MEMO ACTIVITY", "Insert memo fail.");
-
-                complete(isFinish);
-            }
-            //데이터 삽입 성공한 경우
-            else{
-                saveSuccessProc(isFinish, idx);
-            }
-        }
-        //업데이트
-        else{
-            if(memoItem.getIdx() == 0){
+            if(!isNew && memoItem.getIdx() == 0){
                 Log.e("MEMO ACTIVITY", "Is not modify memo.");
                 return;
             }
-
             String title = edit_title.getText().toString();
             String content = edit_content.getText().toString();
+            //TODO: 사진도 확인
 
             //제목, 내용 둘 다 입력이 없는 경우
+            //TODO: 사진까지 확인
             if(title.isEmpty() && content.isEmpty()){
-                complete(isFinish);
+                finishMemo(isBack);
                 return;
             }
 
-            //데이터 수정
+            //데이서 삽입/수정
             memoItem.setTitle(title);
             memoItem.setContent(content);
-            int updateCnt = DatabaseManager.getInstance(this).updateMemoById(memoItem);
-
-            //데이터 수정이 실패한 경우
-            if(updateCnt <= 0){
-                Toast.makeText(MemoActivity.this, "저장을 실패했습니다.", Toast.LENGTH_SHORT).show();
-                Log.e("MEMO ACTIVITY", "Upate memo fail.");
-
-                complete(isFinish);
-            }
-            //데이터 수정 성공한 경우
-            else{
-                saveSuccessProc(isFinish, memoItem.getIdx());
-            }
-        }
-    }
-
-    private void saveSuccessProc(boolean isFinish, long idx){
-        if(!isFinish){
-            //현재 데이터 갱신
-            MemoItem insertedMemoItem = DatabaseManager.getInstance(this).selectMemoByIdx(idx);
-            memoItem.setDate(insertedMemoItem.getDate());
-            memoItem.setTitle(insertedMemoItem.getTitle());
-            memoItem.setContent(insertedMemoItem.getContent());
-
-            txt_date.setText(memoItem.getDate());
-            edit_title.setText(memoItem.getTitle());
-            edit_content.setText(memoItem.getContent());
-
-            toggleChangedFlag(false);
 
             if(isNew){
-                memoItem.setIdx(insertedMemoItem.getIdx());
-
-                //수정모드로 변경
-                isNew = false;
-                txt_date.setVisibility(View.VISIBLE);
-                imgBnt_deleteMemo.setVisibility(View.VISIBLE);
-                imgBtn_addMemo.setVisibility(View.VISIBLE);
-            }
-        }
-
-        doUpdateMemoList = true;
-        //Toast.makeText(MemoActivity.this, "저장되었습니다.", Toast.LENGTH_SHORT).show();
-        complete(isFinish);
-    }
-
-    private void complete(boolean isFinish){
-        /// 뒤로
-        if(isFinish){
-            if(doUpdateMemoList){
-                setResult(RESULT_OK, null);
+                DataManager.getInstance(this).requestMemoInsert(memoItem);
             }
             else{
-                setResult(RESULT_CANCELED, null);
+                DataManager.getInstance(this).requestMemoUpdate(memoItem);
             }
-            finish();
+
+            finishMemo(isBack);
         }
-        /// 완료
-        else{
-            hideKeyboard();
+    }
+
+    private void deleteMemoEx(){
+        AlertDialog.Builder adb = new AlertDialog.Builder(this);
+        adb.setTitle("정말 삭제하시겠습니까?");
+        adb.setPositiveButton("예", new DialogInterface.OnClickListener() {
+
+            public void onClick(DialogInterface dialog, int which) {
+                long idxs[] = new long[1];
+                idxs[0] = memoItem.getIdx();
+
+                DataManager.getInstance(MemoActivity.this).requestMemosDelete(idxs);
+                finishMemo(true);
+            }
+
+        });
+        adb.setNegativeButton("아니오", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+
+            }
+        });
+        adb.show();
+    }
+
+    private void refreshData(long idx){
+        for(MemoItem memo : DataManager.getInstance(this).getMemos()){
+            if(memo.getIdx() == idx){
+                memoItem.setIdx(memo.getIdx());
+                memoItem.setDate(memo.getDate());
+                memoItem.setTitle(memo.getTitle());
+                memoItem.setContent(memo.getContent());
+                //memoItem.getImages().clear();
+                //memoItem.getImages().addAll(memo.getImages());
+                break;
+            }
+        }
+
+        //현재 데이터 갱신
+        txt_date.setText(memoItem.getDate());
+        edit_title.setText(memoItem.getTitle());
+        edit_content.setText(memoItem.getContent());
+
+        //모드 변경
+        if(isNew){
+            isNew = false;
+            txt_date.setVisibility(View.VISIBLE);
+            imgBnt_deleteMemo.setVisibility(View.VISIBLE);
+            imgBtn_addMemo.setVisibility(View.VISIBLE);
+            toggleChangedFlag(false);
         }
     }
 }

@@ -4,10 +4,15 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Paint;
+import android.util.Log;
 
+import com.lineplus.notepad.model.Image;
 import com.lineplus.notepad.model.MemoItem;
 
-import java.lang.reflect.Array;
+import java.io.ByteArrayOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -67,10 +72,12 @@ public class DatabaseManager {
                 }
 
                 MemoItem memoItem = new MemoItem();
-                memoItem.setIdx(Long.parseLong(cursor.getString(0)));
+                memoItem.setIdx(cursor.getLong(0));
                 memoItem.setTitle(cursor.getString(1));
                 memoItem.setDate(cursor.getString(2));
                 memoItem.setContent(cursor.getString(3));
+                memoItem.setImages(selectImageByMemoIdx(memoItem.getIdx()));
+
                 memoItems.add(memoItem);
 
                 cursor.moveToNext();
@@ -94,14 +101,58 @@ public class DatabaseManager {
                 if(cursor.getColumnCount() != MEMO_COLUMN_CNT){
                     continue;
                 }
-                memoItem.setIdx(Long.parseLong(cursor.getString(0)));
+                memoItem.setIdx(cursor.getLong(0));
                 memoItem.setTitle(cursor.getString(1));
                 memoItem.setDate(cursor.getString(2));
                 memoItem.setContent(cursor.getString(3));
+                memoItem.setImages(selectImageByMemoIdx(memoItem.getIdx()));
             }while(false);
         }
 
         return memoItem;
+    }
+
+    private ArrayList<Image> selectImageByMemoIdx(long memoIdx){
+        ArrayList<Image> images = new ArrayList<>();
+
+        String selection = "MEMO_IDX = ?";
+        String[] selectionArgs = new String[1];
+        selectionArgs[0] = Long.toString(memoIdx);
+        Cursor cursor = db.query(TABLE_NAME_IMAGE, null, selection, selectionArgs, null, null, null);
+
+        if(cursor != null){
+            cursor.moveToFirst();
+
+            while(cursor.isAfterLast() == false){
+                if(cursor.getColumnCount() != IMAGE_COLUMN_CNT){
+                    continue;
+                }
+
+                Image image = new Image();
+                image.setIdx(cursor.getLong(0));
+                image.setMemoIdx(cursor.getLong(1));
+                image.setType(cursor.getString(2));
+                if(image.getType().equals("IMAGE")){
+                    byte[] blobBytes = cursor.getBlob(3);
+                    Bitmap bmp = BitmapFactory.decodeByteArray(blobBytes, 0 , blobBytes.length);
+                    image.setBmp(bmp);
+                }
+                else if(image.getType().equals("URL")){
+                    image.setBmp(null);
+                    image.setUrl(cursor.getString(4));
+                }
+                else {
+                    Log.e("DB MANAGER", "Image type is nothing.");
+                    continue;
+                }
+
+                images.add(image);
+
+                cursor.moveToNext();
+            }
+        }
+
+        return images;
     }
 
     /**
@@ -117,6 +168,30 @@ public class DatabaseManager {
         contentValues.put("CONTENT", memoItem.getContent());
         return db.insert(TABLE_NAME_MEMO, null, contentValues);
     }
+
+    public long insertImage(Image image){
+        if(image == null){
+            return -1;
+        }
+        ContentValues contentValues = new ContentValues();
+        contentValues.put("MEMO_IDX", image.getMemoIdx());
+        contentValues.put("TYPE", image.getType());
+        if(image.getType().equals("IMAGE")){
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            image.getBmp().compress(Bitmap.CompressFormat.JPEG, 100, baos);
+            byte[] blobBytes = baos.toByteArray();
+            contentValues.put("BLOB_DATA", blobBytes);
+        }
+        else if(image.getType().equals("URL")){
+            contentValues.put("URL_DATA", image.getUrl());
+        }
+        else{
+            Log.e("DB MANAGER", "Image type is nothing.");
+            return -1;
+        }
+        return db.insert(TABLE_NAME_IMAGE, null, contentValues);
+    }
+
 
     /**
      * @param idxs
@@ -136,7 +211,43 @@ public class DatabaseManager {
             selectionArgs[i] = Long.toString(idxs[i]);
         }
 
+        deleteImageByMemoIdx(idxs); //관련된 사진 모두 삭제
+
         return db.delete(TABLE_NAME_MEMO, selection, selectionArgs);
+    }
+
+    private int deleteImageByMemoIdx(long[] memoIdxs){
+        if(memoIdxs.length <= 0){
+            return 0;
+        }
+
+        String[] selectionArgs = new String[memoIdxs.length];
+        String selection = "MEMO_IDX = ?";
+        selectionArgs[0] = Long.toString(memoIdxs[0]);
+
+        for(int i = 1; i < memoIdxs.length; i++){
+            selection += " OR MEMO_IDX = ?";
+            selectionArgs[i] = Long.toString(memoIdxs[i]);
+        }
+
+        return db.delete(TABLE_NAME_IMAGE, selection, selectionArgs);
+    }
+
+    public int deleteImageByIdx(long[] idxs){
+        if(idxs.length <= 0){
+            return 0;
+        }
+
+        String[] selectionArgs = new String[idxs.length];
+        String selection = "IDX = ?";
+        selectionArgs[0] = Long.toString(idxs[0]);
+
+        for(int i = 1; i < idxs.length; i++){
+            selection += " OR IDX = ?";
+            selectionArgs[i] = Long.toString(idxs[i]);
+        }
+
+        return db.delete(TABLE_NAME_IMAGE, selection, selectionArgs);
     }
 
     /**
