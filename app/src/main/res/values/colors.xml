@@ -4,7 +4,9 @@
     <color name="colorPrimaryDark">#00574B</color>
     <color name="colorAccent">#D81B60</color>
     <color name="colorTransparent">#00FFFFFF</color>
+    <color name="colorTranslucent">#33FFFFFF</color>
     <color name="colorDarkGray">#FF2B2B2B</color>
+    <color name="colorDarkGray2">#FF313335</color>
     <color name="colorRightGray1">#FFAEB0B2</color>
     <color name="colorRightGray2">#FF3C3F41</color>
     <color name="colorGreen">#FF00B801</color>

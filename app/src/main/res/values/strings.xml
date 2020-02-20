@@ -13,4 +13,6 @@
     <string name="select_memo">선택</string>
     <string name="delete_memo">삭제</string>
     <string name="delete_all_memo">모두 삭제</string>
+    <string name="select_photo">선택</string>
+    <string name="delete_photo">삭제</string>
 </resources>

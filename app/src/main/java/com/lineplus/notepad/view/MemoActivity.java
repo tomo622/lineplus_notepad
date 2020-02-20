@@ -2,18 +2,24 @@ package com.lineplus.notepad.view;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.TranslateAnimation;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -35,6 +41,7 @@ public class MemoActivity extends AppCompatActivity {
 
     private ConstraintLayout constLayout_main;
     private ConstraintLayout constLayout_back;
+    private View include_slide;
     private FrameLayout frameLayout_save;
     private ImageView img_back;
     private TextView txt_back;
@@ -44,6 +51,10 @@ public class MemoActivity extends AppCompatActivity {
     private EditText edit_content;
     private ImageButton imgBnt_deleteMemo;
     private ImageButton imgBtn_addMemo;
+    private ToggleButton tgl_photo;
+
+    private ConstraintLayout constLayout_transparent;
+    private ConstraintLayout constLayout_untransparent;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -57,6 +68,7 @@ public class MemoActivity extends AppCompatActivity {
             imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             constLayout_main = findViewById(R.id.memo_constLayout_main);
             constLayout_back = findViewById(R.id.memo_constLayout_back);
+            include_slide = findViewById(R.id.memo_include_slide);
             frameLayout_save = findViewById(R.id.memo_frameLayout_save);
             img_back = findViewById(R.id.memo_img_back);
             txt_back = findViewById(R.id.memo_txt_back);
@@ -66,7 +78,11 @@ public class MemoActivity extends AppCompatActivity {
             edit_content = findViewById(R.id.memo_edit_content);
             imgBnt_deleteMemo = findViewById(R.id.memo_imgBnt_deleteMemo);
             imgBtn_addMemo = findViewById(R.id.memo_imgBtn_addMemo);
+            tgl_photo = findViewById(R.id.memo_tgl_photo);
 
+
+            constLayout_transparent = findViewById(R.id.photo_constLayout_transparent);
+            constLayout_untransparent = findViewById(R.id.photo_constLayout_untransparent);
 
             //////////////////////////////////////////////////
             // 바인딩
@@ -132,8 +148,42 @@ public class MemoActivity extends AppCompatActivity {
                 }
             });
 
+            tgl_photo.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                    if(b){
+                        slideUp(include_slide);
+                    }
+                    else{
+                        slideDown(include_slide);
+                    }
+                }
+            });
 
+            constLayout_transparent.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View view, MotionEvent motionEvent) {
+                    if(tgl_photo.isChecked()){
+                        tgl_photo.setChecked(false);
+                        return true;
+                    }
+                    else{
+                        return false;
+                    }
+                }
+            });
 
+            constLayout_untransparent.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View view, MotionEvent motionEvent) {
+                    if(tgl_photo.isChecked()){
+                        return true;
+                    }
+                    else{
+                        return false;
+                    }
+                }
+            });
             init(true);
 
         }catch (Exception e) {
@@ -174,6 +224,8 @@ public class MemoActivity extends AppCompatActivity {
         //////////////////////////////////////////////////
         // 설정
         //////////////////////////////////////////////////
+        include_slide.setVisibility(View.GONE);
+        tgl_photo.setChecked(false);
 
         txt_date.setText(memoItem.getDate());
         edit_title.setText(memoItem.getTitle());
@@ -205,6 +257,60 @@ public class MemoActivity extends AppCompatActivity {
         else{
             frameLayout_save.setVisibility(View.GONE);
         }
+    }
+
+    public void slideUp(final View view){
+        TranslateAnimation animate = new TranslateAnimation(
+                0,
+                0,
+                view.getHeight(),
+                0);
+        animate.setDuration(500);
+        animate.setFillAfter(true);
+        animate.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+                view.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+        view.startAnimation(animate);
+    }
+
+    public void slideDown(final View view){
+        TranslateAnimation animate = new TranslateAnimation(
+                0,
+                0,
+                0,
+                view.getHeight());
+        animate.setDuration(500);
+        animate.setFillAfter(true);
+        animate.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                view.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+        view.startAnimation(animate);
     }
 
     private void deleteMemo(){

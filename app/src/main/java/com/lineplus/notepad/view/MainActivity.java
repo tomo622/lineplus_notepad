@@ -28,7 +28,6 @@ import com.lineplus.notepad.event.OnClickMemoItem;
 import com.lineplus.notepad.R;
 import com.lineplus.notepad.view.helper.SwipeHelper;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
