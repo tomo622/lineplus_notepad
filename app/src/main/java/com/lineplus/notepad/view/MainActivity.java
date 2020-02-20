@@ -25,6 +25,7 @@ import com.lineplus.notepad.data.DataObservable;
 import com.lineplus.notepad.data.DataObserver;
 import com.lineplus.notepad.data.DataObserverNotice;
 import com.lineplus.notepad.database.DatabaseManager;
+import com.lineplus.notepad.event.OnSingleClickListener;
 import com.lineplus.notepad.util.GraphicFunc;
 import com.lineplus.notepad.model.MemoItem;
 import com.lineplus.notepad.view.adapter.MemoListAdapter;
@@ -140,18 +141,18 @@ public class MainActivity extends AppCompatActivity implements DataObservable {
             }
         });
 
-        imgBtn_addMemo.setOnClickListener(new View.OnClickListener() {
+        imgBtn_addMemo.setOnClickListener(new OnSingleClickListener() {
             @Override
-            public void onClick(View view) {
+            public void onClickEx(View view) {
                 Intent intent = new Intent(MainActivity.this, MemoActivity.class);
                 intent.putExtra(MemoActivity.INTENT_REQ_NEW, true);
                 startActivity(intent);
             }
         });
 
-        txt_deleteMemo.setOnClickListener(new View.OnClickListener() {
+        OnSingleClickListener onSingleClickListenerDeleteMemo = new OnSingleClickListener() {
             @Override
-            public void onClick(View view) {
+            public void onClickEx(View view) {
                 //모두 삭제
                 if(txt_deleteMemo.getText().toString().equals(getResources().getString(R.string.delete_all_memo))){
                     deleteMemoEx(memoItems);
@@ -162,7 +163,9 @@ public class MainActivity extends AppCompatActivity implements DataObservable {
                     deleteMemoEx(seletedMemoItems);
                 }
             }
-        });
+        };
+        frameLayout_deleteMemo.setOnClickListener(onSingleClickListenerDeleteMemo);
+        txt_deleteMemo.setOnClickListener(onSingleClickListenerDeleteMemo);
 
         DataManager.getInstance(this).requestMemos();
     }

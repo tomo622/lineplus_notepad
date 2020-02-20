@@ -30,7 +30,7 @@ public class DatabaseManager {
             TABLE_NAME_MEMO +
             "(IDX INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, " +
             "TITLE TEXT , " +
-            "DATE DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, " +
+            "DATE DATETIME NOT NULL DEFAULT (datetime('now','localtime')), " +
             "CONTENT TEXT);";
     private static final String SQL_CREATE_IMAGE_TABLE = "CREATE TABLE IF NOT EXISTS "+
             TABLE_NAME_IMAGE +

@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.lineplus.notepad.R;
 import com.lineplus.notepad.event.OnCheckMemoItemSelect;
 import com.lineplus.notepad.event.OnClickMemoItem;
+import com.lineplus.notepad.event.OnSingleClickListener;
 import com.lineplus.notepad.model.MemoItem;
 
 import java.text.SimpleDateFormat;
@@ -118,9 +119,9 @@ public class MemoListAdapter extends RecyclerView.Adapter<MemoListAdapter.ViewHo
             holder.linLayout_item.setBackgroundColor(Color.parseColor(parent.getResources().getString(R.color.colorDarkGray)));
         }
 
-        holder.linLayout_item.setOnClickListener(new View.OnClickListener() {
+        holder.linLayout_item.setOnClickListener(new OnSingleClickListener() {
             @Override
-            public void onClick(View view) {
+            public void onClickEx(View view) {
                 if(!showSelectButton){
                     onClickMemoItem.onClick(item);
                 }
