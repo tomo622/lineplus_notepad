@@ -10,16 +10,17 @@ public class Image implements Serializable {
     private long idx;
     private long memoIdx;
     private String type;
-    private Bitmap bmp;
+    private byte[] bitmapBytes;
     private String url;
 
-    public Image(){}
+    public Image(){
+    }
 
-    public Image(long idx, long memoIdx, String type, Bitmap bmp, String url) {
+    public Image(long idx, long memoIdx, String type, byte[] bitmapBytes, String url) {
         this.idx = idx;
         this.memoIdx = memoIdx;
         this.type = type;
-        this.bmp = bmp;
+        this.bitmapBytes = bitmapBytes;
         this.url = url;
     }
 
@@ -39,8 +40,8 @@ public class Image implements Serializable {
         return type;
     }
 
-    public Bitmap getBmp() {
-        return bmp;
+    public byte[] getBitmapBytes() {
+        return bitmapBytes;
     }
 
     public String getUrl() {
@@ -59,8 +60,8 @@ public class Image implements Serializable {
         this.type = type;
     }
 
-    public void setBmp(Bitmap bmp) {
-        this.bmp = bmp;
+    public void setBitmapBytes(byte[] bitmapBytes) {
+        this.bitmapBytes = bitmapBytes;
     }
 
     public void setUrl(String url) {

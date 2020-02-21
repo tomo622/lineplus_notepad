@@ -73,7 +73,7 @@ public class AddPhotoDialog extends Dialog {
         btn_saveUrl.setOnClickListener(new OnSingleClickListener() {
             @Override
             public void onClickEx(View view) {
-                onClickAddPhoto.onClick(OnClickAddPhoto.TYPE.INPUT_URL, "");
+                onClickAddPhoto.onClick(OnClickAddPhoto.TYPE.INPUT_URL, edit_url.getText().toString());
                 dismiss();
             }
         });

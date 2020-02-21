@@ -72,7 +72,9 @@ public class MainActivity extends AppCompatActivity implements DataObservable {
             public void onClick(MemoItem memoItem) {
                 Intent intent = new Intent(MainActivity.this, MemoActivity.class);
                 intent.putExtra(MemoActivity.INTENT_REQ_NEW, false);
-                intent.putExtra(MemoActivity.INTENT_REQ_ITEM, memoItem);
+                Bundle bundle = new Bundle();
+                bundle.putSerializable(MemoActivity.INTENT_REQ_ITEM, memoItem);
+                intent.putExtras(bundle);
                 startActivity(intent);
             }
         };

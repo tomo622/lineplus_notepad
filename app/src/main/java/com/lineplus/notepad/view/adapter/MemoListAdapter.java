@@ -1,6 +1,7 @@
 package com.lineplus.notepad.view.adapter;
 
 import android.annotation.SuppressLint;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,7 +20,10 @@ import com.lineplus.notepad.R;
 import com.lineplus.notepad.event.OnCheckMemoItemSelect;
 import com.lineplus.notepad.event.OnClickMemoItem;
 import com.lineplus.notepad.event.OnSingleClickListener;
+import com.lineplus.notepad.model.Image;
 import com.lineplus.notepad.model.MemoItem;
+import com.lineplus.notepad.util.GraphicFunc;
+import com.squareup.picasso.Picasso;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -98,7 +102,17 @@ public class MemoListAdapter extends RecyclerView.Adapter<MemoListAdapter.ViewHo
             holder.txt_date.setText(item.getDate());
         }
         holder.txt_content.setText(item.getContent());
-        //holder.img_image.
+        if(item.getImages().size() > 0){
+            Image thumbnail = item.getImages().get(0);
+
+            if(thumbnail.getType().equals("URL")){
+                GraphicFunc.setImageByUrlToImageView(parent.getContext(), thumbnail.getUrl(), holder.img_image);
+            }
+            else if(thumbnail.getType().equals("IMAGE")){
+                holder.img_image.setImageBitmap(GraphicFunc.bytesToBitmap(thumbnail.getBitmapBytes()));
+            }
+        }
+
 
 
         //현재 아이템 선택 상태에 따라 토글 버튼을 변경

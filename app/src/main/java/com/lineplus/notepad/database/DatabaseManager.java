@@ -9,13 +9,18 @@ import android.graphics.BitmapFactory;
 import android.graphics.Paint;
 import android.util.Log;
 
+import com.lineplus.notepad.R;
 import com.lineplus.notepad.model.Image;
 import com.lineplus.notepad.model.MemoItem;
+import com.lineplus.notepad.util.GraphicFunc;
+import com.squareup.picasso.Picasso;
 
 import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 
 public class DatabaseManager {
     private static DatabaseManager instance = null;
@@ -133,12 +138,9 @@ public class DatabaseManager {
                 image.setMemoIdx(cursor.getLong(1));
                 image.setType(cursor.getString(2));
                 if(image.getType().equals("IMAGE")){
-                    byte[] blobBytes = cursor.getBlob(3);
-                    Bitmap bmp = BitmapFactory.decodeByteArray(blobBytes, 0 , blobBytes.length);
-                    image.setBmp(bmp);
+                    image.setBitmapBytes(cursor.getBlob(3));
                 }
                 else if(image.getType().equals("URL")){
-                    image.setBmp(null);
                     image.setUrl(cursor.getString(4));
                 }
                 else {
@@ -177,10 +179,7 @@ public class DatabaseManager {
         contentValues.put("MEMO_IDX", image.getMemoIdx());
         contentValues.put("TYPE", image.getType());
         if(image.getType().equals("IMAGE")){
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            image.getBmp().compress(Bitmap.CompressFormat.JPEG, 100, baos);
-            byte[] blobBytes = baos.toByteArray();
-            contentValues.put("BLOB_DATA", blobBytes);
+            contentValues.put("BLOB_DATA", image.getBitmapBytes());
         }
         else if(image.getType().equals("URL")){
             contentValues.put("URL_DATA", image.getUrl());
