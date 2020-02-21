@@ -2,9 +2,15 @@ package com.lineplus.notepad.view;
 
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.ToggleButton;
 
 import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.lineplus.notepad.R;
 import com.lineplus.notepad.data.DataManager;
@@ -12,14 +18,24 @@ import com.lineplus.notepad.event.OnClickAddPhoto;
 import com.lineplus.notepad.event.OnSingleClickListener;
 import com.lineplus.notepad.model.Image;
 import com.lineplus.notepad.model.MemoItem;
+import com.lineplus.notepad.view.adapter.ImageListAdapter;
 
-public class ViewPhoto {
+import java.util.ArrayList;
+
+public class
+
+ViewPhoto {
     private MemoActivity parent;
 
     private ConstraintLayout constLayout_transparent;
     private ConstraintLayout constLayout_untransparent;
     private AppCompatImageButton imgBnt_add;
+    private ToggleButton tgl_select;
+    private Button btn_delete;
+    private RecyclerView recy_photoList;
 
+    private ArrayList<Image> images;
+    private ImageListAdapter imageListAdapter;
 
     public ViewPhoto(MemoActivity parent){
         this.parent = parent;
@@ -33,6 +49,12 @@ public class ViewPhoto {
         constLayout_transparent = parent.findViewById(R.id.photo_constLayout_transparent);
         constLayout_untransparent = parent.findViewById(R.id.photo_constLayout_untransparent);
         imgBnt_add = parent.findViewById(R.id.photo_imgBnt_add);
+        tgl_select = parent.findViewById(R.id.photo_tgl_select);
+        btn_delete = parent.findViewById(R.id.photo_btn_delete);
+        recy_photoList = parent.findViewById(R.id.photo_recy_photoList);
+
+        images = new ArrayList<>();
+        imageListAdapter = new ImageListAdapter(images);
 
         //////////////////////////////////////////////////
         // 바인딩
@@ -89,6 +111,33 @@ public class ViewPhoto {
                 addPhotoDialog.show();
             }
         });
+
+        tgl_select.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if(b){
+                    btn_delete.setVisibility(View.VISIBLE);
+                }
+                else{
+                    btn_delete.setVisibility(View.GONE);
+                }
+            }
+        });
+
+        btn_delete.setOnClickListener(new OnSingleClickListener() {
+            @Override
+            public void onClickEx(View view) {
+
+            }
+        });
+
+        //////////////////////////////////////////////////
+        // 설정
+        //////////////////////////////////////////////////
+        btn_delete.setVisibility(View.GONE);
+
+        recy_photoList.setAdapter(imageListAdapter);
+        recy_photoList.setLayoutManager(new LinearLayoutManager(parent, RecyclerView.HORIZONTAL, false));
     }
 
     private long getCurrentMemoIdx(){
@@ -97,5 +146,11 @@ public class ViewPhoto {
             return -1;
         }
         return memoItem.getIdx();
+    }
+
+    public void setData(){
+        images.clear();
+        images.addAll(parent.getMemoItem().getImages());
+        imageListAdapter.notifyDataSetChanged();
     }
 }

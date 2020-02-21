@@ -215,6 +215,7 @@ public class MemoActivity extends AppCompatActivity implements DataObservable {
         txt_date.setText(memoItem.getDate());
         edit_title.setText(memoItem.getTitle());
         edit_content.setText(memoItem.getContent());
+        viewPhoto.setData();
 
         frameLayout_save.setVisibility(View.GONE);
         toggleChangedFlag(false);
@@ -436,7 +437,10 @@ public class MemoActivity extends AppCompatActivity implements DataObservable {
 
         //현재 데이터 갱신
         txt_date.setText(memoItem.getDate());
-        if(changedImage) return;
+        viewPhoto.setData();
+        if(changedImage){
+            return;
+        }
         edit_title.setText(memoItem.getTitle());
         edit_content.setText(memoItem.getContent());
 

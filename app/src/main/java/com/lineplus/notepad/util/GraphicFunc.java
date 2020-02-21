@@ -15,8 +15,6 @@ import com.lineplus.notepad.R;
 import com.squareup.picasso.Picasso;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 
 public class GraphicFunc {
 
