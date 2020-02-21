@@ -233,12 +233,13 @@ public class MainActivity extends AppCompatActivity implements DataObservable {
                 }
 
                 DataManager.getInstance(MainActivity.this).requestMemosDelete(idxs);
+                dialog.dismiss();
             }
 
         });
         adb.setNegativeButton("아니오", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
-
+                dialog.cancel();
             }
         });
         adb.show();

@@ -15,7 +15,7 @@ public class MemoItem implements Serializable{
     private boolean selected;
 
     public MemoItem(){
-
+        images = new ArrayList<>();
     }
 
     public MemoItem(long idx, String title, String date, String content, ArrayList<Image> images) {

@@ -2,7 +2,11 @@ package com.lineplus.notepad.model;
 
 import android.graphics.Bitmap;
 
-public class Image {
+import java.io.Serializable;
+
+public class Image implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private long idx;
     private long memoIdx;
     private String type;
@@ -17,6 +21,10 @@ public class Image {
         this.type = type;
         this.bmp = bmp;
         this.url = url;
+    }
+
+    public static long getSerialVersionUID() {
+        return serialVersionUID;
     }
 
     public long getIdx() {

@@ -6,6 +6,7 @@
     <string name="desc_back_btn">뒤로가기 버튼</string>
     <string name="hint_input_title">제목</string>
     <string name="hint_input_content">내용</string>
+    <string name="hint_input_url">이미지 URL</string>
 
     <string name="cancel">취소</string>
     <string name="back">뒤로</string>
@@ -18,4 +19,5 @@
     <string name="add_photo_take_picture">사진 찍기</string>
     <string name="add_photo_from_album">사진 보관함</string>
     <string name="add_photo_input_url">URL 입력</string>
+    <string name="input">입력</string>
 </resources>

@@ -5,6 +5,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.lineplus.notepad.database.DatabaseManager;
+import com.lineplus.notepad.model.Image;
 import com.lineplus.notepad.model.MemoItem;
 import com.lineplus.notepad.view.MemoActivity;
 
@@ -95,6 +96,31 @@ public class DataManager {
         else{
             NotifyObservers(DataObserverNotice.TYPE.UPDATE, false, 0);
             Log.e("DATA MANAGER", "Update memo is fail.");
+        }
+    }
+
+    public void requestImageInsert(Image image){
+        if(image.getMemoIdx() <= 0){
+            MemoItem memoItem = new MemoItem();
+            long insertedMemoIdx = DatabaseManager.getInstance(context).insertMemo(memoItem);
+            if(insertedMemoIdx >= 0){
+                image.setMemoIdx(insertedMemoIdx);
+            }
+            else{
+                Log.e("DATA MANAGER", "Insert memo is fail.");
+                return;
+            }
+        }
+
+        long insertedIdx = DatabaseManager.getInstance(context).insertImage(image);
+
+        if(insertedIdx >= 0){
+            requestMemosEx();
+            NotifyObservers(DataObserverNotice.TYPE.INSERT, true, insertedIdx);
+        }
+        else{
+            NotifyObservers(DataObserverNotice.TYPE.INSERT, false, 0);
+            Log.e("DATA MANAGER", "Insert image is fail.");
         }
     }
 }

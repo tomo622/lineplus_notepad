@@ -229,6 +229,10 @@ public class MemoActivity extends AppCompatActivity implements DataObservable {
         }
     }
 
+    public MemoItem getMemoItem() {
+        return memoItem;
+    }
+
     public ToggleButton getTgl_photo() {
         return tgl_photo;
     }
@@ -387,13 +391,14 @@ public class MemoActivity extends AppCompatActivity implements DataObservable {
                 idxs[0] = memoItem.getIdx();
 
                 DataManager.getInstance(MemoActivity.this).requestMemosDelete(idxs);
+                dialog.dismiss();
                 finishMemo(true);
             }
 
         });
         adb.setNegativeButton("아니오", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
-
+                dialog.cancel();
             }
         });
         adb.show();
@@ -406,8 +411,9 @@ public class MemoActivity extends AppCompatActivity implements DataObservable {
                 memoItem.setDate(memo.getDate());
                 memoItem.setTitle(memo.getTitle());
                 memoItem.setContent(memo.getContent());
-                //memoItem.getImages().clear();
-                //memoItem.getImages().addAll(memo.getImages());
+                memoItem.getImages().clear();
+                memoItem.getImages().addAll(memo.getImages());
+
                 break;
             }
         }

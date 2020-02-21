@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -24,11 +25,50 @@
         android:text="@string/add_photo_from_album"
         android:textColor="@color/colorGreen" />
 
-    <Button
-        android:id="@+id/addPhoto_btn_inputUrl"
+    <ToggleButton
+        android:id="@+id/addPhoto_tgl_inputUrl"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/btn_green"
-        android:text="@string/add_photo_input_url"
-        android:textColor="@color/colorGreen" />
+        android:textColor="@color/colorGreen"
+        android:textOff="@string/add_photo_input_url"
+        android:textOn="@string/add_photo_input_url" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/addPhoto_constLayout_inputUrl"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <EditText
+            android:id="@+id/addPhoto_edit_url"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="@null"
+            android:ems="10"
+            android:hint="@string/hint_input_url"
+            android:inputType="textUri"
+            android:textColor="@color/colorWhite"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toLeftOf="@id/addPhoto_btn_saveUrl"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+            android:id="@+id/addPhoto_btn_saveUrl"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@color/colorTransparent"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
+            android:paddingStart="@dimen/txt_btn_frame_padding_left"
+            android:paddingTop="@dimen/txt_btn_frame_padding_top"
+            android:paddingEnd="@dimen/txt_btn_frame_padding_right"
+            android:paddingBottom="@dimen/txt_btn_frame_padding_bottom"
+            android:text="@string/input"
+            android:textColor="@color/colorGreen"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toRightOf="@id/addPhoto_edit_url"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </LinearLayout>
