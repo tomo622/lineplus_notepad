@@ -216,6 +216,14 @@ public class MainActivity extends AppCompatActivity implements DataObservable {
                 Toast.makeText(MainActivity.this, "수정을 실패했습니다.", Toast.LENGTH_SHORT).show();
             }
         }
+        else if(dataObserverNotice.getType().equals(DataObserverNotice.TYPE.INSERT_IMAGE)){
+            if(dataObserverNotice.isResult()){
+                setData();
+            }
+            else{
+                Toast.makeText(MainActivity.this, "이미지 저장을 실패했습니다.", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
     private void toggleAddDeleteButton(boolean isSelectMode){

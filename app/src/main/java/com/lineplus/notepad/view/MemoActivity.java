@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
@@ -18,7 +17,6 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import androidx.annotation.Nullable;
@@ -30,7 +28,6 @@ import com.lineplus.notepad.data.DataManager;
 import com.lineplus.notepad.data.DataObservable;
 import com.lineplus.notepad.data.DataObserver;
 import com.lineplus.notepad.data.DataObserverNotice;
-import com.lineplus.notepad.database.DatabaseManager;
 import com.lineplus.notepad.model.MemoItem;
 import com.lineplus.notepad.R;
 
@@ -142,7 +139,7 @@ public class MemoActivity extends AppCompatActivity implements DataObservable {
             imgBnt_deleteMemo.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    deleteMemoEx();
+                    deleteMemo();
                 }
             });
 
@@ -229,6 +226,7 @@ public class MemoActivity extends AppCompatActivity implements DataObservable {
         }
     }
 
+
     public MemoItem getMemoItem() {
         return memoItem;
     }
@@ -243,7 +241,7 @@ public class MemoActivity extends AppCompatActivity implements DataObservable {
         if(dataObserverNotice.getType().equals(DataObserverNotice.TYPE.INSERT)){
             if(dataObserverNotice.isResult()){
                 long insertedIdx = dataObserverNotice.getLparam1();
-                refreshData(insertedIdx);
+                refreshData(insertedIdx, false);
             }
             else{
 
@@ -251,7 +249,14 @@ public class MemoActivity extends AppCompatActivity implements DataObservable {
         }
         else if(dataObserverNotice.getType().equals(DataObserverNotice.TYPE.UPDATE)){
             if(dataObserverNotice.isResult()){
-                refreshData(memoItem.getIdx());
+                refreshData(memoItem.getIdx(), false);
+            }
+            else{
+            }
+        }
+        else if(dataObserverNotice.getType().equals(DataObserverNotice.TYPE.INSERT_IMAGE)){
+            if(dataObserverNotice.isResult()){
+                refreshData(memoItem.getIdx(), true);
             }
             else{
             }
@@ -357,12 +362,19 @@ public class MemoActivity extends AppCompatActivity implements DataObservable {
             }
             String title = edit_title.getText().toString();
             String content = edit_content.getText().toString();
-            //TODO: 사진도 확인
+            int imageCnt = memoItem.getImages().size();
 
-            //제목, 내용 둘 다 입력이 없는 경우
-            //TODO: 사진까지 확인
-            if(title.isEmpty() && content.isEmpty()){
-                finishMemo(isBack);
+            //제목, 내용, 이미지 다 입력이 없는 경우
+            if(title.isEmpty() && content.isEmpty() && imageCnt == 0){
+                if(!isNew){
+                    //원래있던 데이터라면 삭제
+                    deleteMemoEx();
+                    finishMemo(true);
+                }
+                else{
+                    //새로만든 경우라면 그냥 끝낸다.
+                    finishMemo(isBack);
+                }
                 return;
             }
 
@@ -382,15 +394,19 @@ public class MemoActivity extends AppCompatActivity implements DataObservable {
     }
 
     private void deleteMemoEx(){
+        long idxs[] = new long[1];
+        idxs[0] = memoItem.getIdx();
+
+        DataManager.getInstance(MemoActivity.this).requestMemosDelete(idxs);
+    }
+
+    private void deleteMemo(){
         AlertDialog.Builder adb = new AlertDialog.Builder(this);
         adb.setTitle("정말 삭제하시겠습니까?");
         adb.setPositiveButton("예", new DialogInterface.OnClickListener() {
 
             public void onClick(DialogInterface dialog, int which) {
-                long idxs[] = new long[1];
-                idxs[0] = memoItem.getIdx();
-
-                DataManager.getInstance(MemoActivity.this).requestMemosDelete(idxs);
+                deleteMemoEx();
                 dialog.dismiss();
                 finishMemo(true);
             }
@@ -404,7 +420,7 @@ public class MemoActivity extends AppCompatActivity implements DataObservable {
         adb.show();
     }
 
-    private void refreshData(long idx){
+    private void refreshData(long idx, boolean changedImage){
         for(MemoItem memo : DataManager.getInstance(this).getMemos()){
             if(memo.getIdx() == idx){
                 memoItem.setIdx(memo.getIdx());
@@ -420,6 +436,7 @@ public class MemoActivity extends AppCompatActivity implements DataObservable {
 
         //현재 데이터 갱신
         txt_date.setText(memoItem.getDate());
+        if(changedImage) return;
         edit_title.setText(memoItem.getTitle());
         edit_content.setText(memoItem.getContent());
 
@@ -429,6 +446,9 @@ public class MemoActivity extends AppCompatActivity implements DataObservable {
             txt_date.setVisibility(View.VISIBLE);
             imgBnt_deleteMemo.setVisibility(View.VISIBLE);
             imgBtn_addMemo.setVisibility(View.VISIBLE);
+        }
+
+        if(changedFlag == true){
             toggleChangedFlag(false);
         }
     }

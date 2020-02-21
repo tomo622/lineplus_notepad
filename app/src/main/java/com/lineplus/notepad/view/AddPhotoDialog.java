@@ -7,6 +7,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
@@ -22,6 +23,8 @@ import com.lineplus.notepad.event.OnSingleClickListener;
 public class AddPhotoDialog extends Dialog {
     private Context context;
     private OnClickAddPhoto onClickAddPhoto;
+
+    private InputMethodManager imm;
 
     private Button btn_takePicture;
     private Button btn_fromAlbum;
@@ -44,6 +47,7 @@ public class AddPhotoDialog extends Dialog {
         //////////////////////////////////////////////////
         // 생성
         //////////////////////////////////////////////////
+        imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
         btn_takePicture = findViewById(R.id.addPhoto_btn_takePicture);
         btn_fromAlbum = findViewById(R.id.addPhoto_btn_fromAlbum);
         btn_saveUrl = findViewById(R.id.addPhoto_btn_saveUrl);
@@ -100,5 +104,17 @@ public class AddPhotoDialog extends Dialog {
         getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
         constLayout_inputUrl.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void dismiss() {
+        super.dismiss();
+        hideKeyboard();
+    }
+
+    private void hideKeyboard(){
+        if(imm.isActive()){
+            imm.hideSoftInputFromWindow(edit_url.getWindowToken(), 0);
+        }
     }
 }

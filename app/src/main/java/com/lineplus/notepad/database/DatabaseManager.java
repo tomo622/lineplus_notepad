@@ -271,4 +271,21 @@ public class DatabaseManager {
 
         return db.update(TABLE_NAME_MEMO, contentValues, selection, selectionArgs);
     }
+
+    public int updateMemoDateByIdx(long idx){
+        if(idx <= 0){
+            return 0;
+        }
+
+        ContentValues contentValues = new ContentValues();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date date = new Date();
+        contentValues.put("DATE", sdf.format(date));
+
+        String selection = "IDX = ?";
+        String[] selectionArgs = new String[1];
+        selectionArgs[0] = Long.toString(idx);
+
+        return db.update(TABLE_NAME_MEMO, contentValues, selection, selectionArgs);
+    }
 }

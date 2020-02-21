@@ -100,11 +100,13 @@ public class DataManager {
     }
 
     public void requestImageInsert(Image image){
+        boolean createMemo = false; //메모를 새로 만드는 경우
         if(image.getMemoIdx() <= 0){
             MemoItem memoItem = new MemoItem();
             long insertedMemoIdx = DatabaseManager.getInstance(context).insertMemo(memoItem);
             if(insertedMemoIdx >= 0){
                 image.setMemoIdx(insertedMemoIdx);
+                createMemo = true;
             }
             else{
                 Log.e("DATA MANAGER", "Insert memo is fail.");
@@ -115,8 +117,20 @@ public class DataManager {
         long insertedIdx = DatabaseManager.getInstance(context).insertImage(image);
 
         if(insertedIdx >= 0){
-            requestMemosEx();
-            NotifyObservers(DataObserverNotice.TYPE.INSERT, true, insertedIdx);
+            if(createMemo){
+                requestMemosEx();
+                NotifyObservers(DataObserverNotice.TYPE.INSERT, true, image.getMemoIdx());
+            }
+            else{
+                //관련 메모 날짜 업데이트
+                int updatedMemoDateCnt = DatabaseManager.getInstance(context).updateMemoDateByIdx(image.getMemoIdx());
+                if(updatedMemoDateCnt <= 0){
+                    Log.e("DATA MANAGER", "Update memo date is fail.");
+                }
+
+                requestMemosEx();
+                NotifyObservers(DataObserverNotice.TYPE.INSERT_IMAGE, true, insertedIdx);
+            }
         }
         else{
             NotifyObservers(DataObserverNotice.TYPE.INSERT, false, 0);
