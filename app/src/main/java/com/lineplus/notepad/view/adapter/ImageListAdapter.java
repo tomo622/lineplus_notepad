@@ -18,6 +18,7 @@ import com.lineplus.notepad.event.OnCheckImageSelect;
 import com.lineplus.notepad.event.OnSingleClickListener;
 import com.lineplus.notepad.model.Image;
 import com.lineplus.notepad.util.GraphicFunc;
+import com.lineplus.notepad.view.ShowPhotoDialog;
 
 import java.util.ArrayList;
 
@@ -116,6 +117,10 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.View
             public void onClickEx(View view) {
                 if(isSelectionMode) {
                     holder.tgl_select.setChecked(!holder.tgl_select.isChecked());
+                }
+                else{
+                    ShowPhotoDialog showPhotoDialog = new ShowPhotoDialog(parent.getContext(), items, items.indexOf(item));
+                    showPhotoDialog .show();
                 }
             }
         });

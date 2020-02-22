@@ -98,7 +98,7 @@ public class AddPhotoDialog extends Dialog {
         // 설정
         //////////////////////////////////////////////////
         DisplayMetrics dm = context.getResources().getDisplayMetrics();
-        int width = (int) (dm.widthPixels * 0.98); // Display 사이즈의 90%
+        int width = (int) (dm.widthPixels * 0.9); // Display 사이즈의 90%
         getWindow().getAttributes().width = width;
 
         getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
