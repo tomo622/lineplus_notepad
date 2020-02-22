@@ -304,6 +304,7 @@ public class MemoActivity extends AppCompatActivity implements DataObservable {
             @Override
             public void onAnimationStart(Animation animation) {
                 view.setVisibility(View.VISIBLE);
+                viewPhoto.visibilityChanged(true);
             }
 
             @Override
@@ -336,6 +337,7 @@ public class MemoActivity extends AppCompatActivity implements DataObservable {
             @Override
             public void onAnimationEnd(Animation animation) {
                 view.setVisibility(View.GONE);
+                viewPhoto.visibilityChanged(false);
             }
 
             @Override

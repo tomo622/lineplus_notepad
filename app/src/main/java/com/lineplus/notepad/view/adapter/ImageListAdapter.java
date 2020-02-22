@@ -1,9 +1,11 @@
 package com.lineplus.notepad.view.adapter;
 
 import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.ToggleButton;
 
@@ -12,25 +14,33 @@ import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.lineplus.notepad.R;
+import com.lineplus.notepad.event.OnSingleClickListener;
 import com.lineplus.notepad.model.Image;
 import com.lineplus.notepad.util.GraphicFunc;
 
-import java.net.CacheRequest;
 import java.util.ArrayList;
 
 public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.ViewHolder> {
     private ViewGroup parent;
     private ArrayList<Image> items;
-    private int cardViewWidth = 0;
+    private boolean isSelectionMode;
 
     public ImageListAdapter(){}
 
     public ImageListAdapter(ArrayList<Image> items) {
         this.items = items;
+        isSelectionMode = false;
     }
 
-    public void setCardViewWidth(int cardViewWidth) {
-        this.cardViewWidth = cardViewWidth;
+    public void setSelectionMode(boolean selectionMode) {
+        isSelectionMode = selectionMode;
+        if(!selectionMode){
+            //선택 모드가 off가 되면 아이템 선택 상태 초기화
+            for(Image img : items){
+                img.setSelected(false);
+            }
+        }
+        this.notifyDataSetChanged();
     }
 
     @NonNull
@@ -42,7 +52,7 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.View
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull final ViewHolder holder, int position) {
         final Image item = items.get(position);
 
         int width = ((ViewGroup)parent.getParent()).getWidth();
@@ -58,6 +68,37 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.View
             GraphicFunc.setImageByUrlToImageView(parent.getContext(), item.getUrl(), holder.img_image);
         }
 
+        if(isSelectionMode){
+            holder.tgl_select.setVisibility(View.VISIBLE);
+            holder.tgl_select.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                    item.setSelected(b);
+                    Drawable alpha = holder.img_image.getDrawable();
+                    if(alpha == null){
+                        alpha = holder.img_image.getBackground();
+                    }
+                    if(alpha != null){
+                        if(b){
+                            alpha.setAlpha(50);
+                        }
+                        else{
+                            alpha.setAlpha(255);
+                        }
+                    }
+                }
+            });
+            holder.tgl_select.setChecked(item.isSelected());
+            holder.img_image.setOnClickListener(new OnSingleClickListener() {
+                @Override
+                public void onClickEx(View view) {
+                    holder.tgl_select.setChecked(!holder.tgl_select.isChecked());
+                }
+            });
+        }
+        else{
+            holder.tgl_select.setVisibility(View.INVISIBLE);
+        }
 
 //        //현재 아이템 선택 상태에 따라 토글 버튼을 변경
 //        holder.tgl_select.setChecked(item.isSelected());

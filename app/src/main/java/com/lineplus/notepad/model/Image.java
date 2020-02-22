@@ -13,6 +13,8 @@ public class Image implements Serializable {
     private byte[] bitmapBytes;
     private String url;
 
+    private boolean selected;
+
     public Image(){
     }
 
@@ -48,6 +50,10 @@ public class Image implements Serializable {
         return url;
     }
 
+    public boolean isSelected() {
+        return selected;
+    }
+
     public void setIdx(long idx) {
         this.idx = idx;
     }
@@ -66,5 +72,9 @@ public class Image implements Serializable {
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    public void setSelected(boolean selected) {
+        this.selected = selected;
     }
 }

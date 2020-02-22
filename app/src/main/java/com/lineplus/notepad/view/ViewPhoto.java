@@ -2,9 +2,10 @@ package com.lineplus.notepad.view;
 
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.LinearLayout;
 import android.widget.ToggleButton;
 
 import androidx.appcompat.widget.AppCompatImageButton;
@@ -19,6 +20,7 @@ import com.lineplus.notepad.event.OnSingleClickListener;
 import com.lineplus.notepad.model.Image;
 import com.lineplus.notepad.model.MemoItem;
 import com.lineplus.notepad.view.adapter.ImageListAdapter;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
@@ -40,6 +42,15 @@ ViewPhoto {
     public ViewPhoto(MemoActivity parent){
         this.parent = parent;
         init();
+    }
+
+    public void visibilityChanged(boolean isShow) {
+        if(isShow){
+
+        }
+        else{
+            tgl_select.setChecked(false); //슬라이드가 내려가면 선택 모드 버튼 off
+        }
     }
 
     private void init(){
@@ -115,6 +126,7 @@ ViewPhoto {
         tgl_select.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                imageListAdapter.setSelectionMode(b);
                 if(b){
                     btn_delete.setVisibility(View.VISIBLE);
                 }
