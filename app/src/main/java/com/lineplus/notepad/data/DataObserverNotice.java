@@ -2,7 +2,7 @@ package com.lineplus.notepad.data;
 
 public class DataObserverNotice {
     public enum TYPE{
-        SELECT, DELETE, INSERT, UPDATE, INSERT_IMAGE;
+        SELECT, DELETE, INSERT, UPDATE, INSERT_IMAGE, DELETE_IMAGE;
     }
 
     private TYPE type;

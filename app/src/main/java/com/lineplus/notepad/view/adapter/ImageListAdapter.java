@@ -14,6 +14,7 @@ import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.lineplus.notepad.R;
+import com.lineplus.notepad.event.OnCheckImageSelect;
 import com.lineplus.notepad.event.OnSingleClickListener;
 import com.lineplus.notepad.model.Image;
 import com.lineplus.notepad.util.GraphicFunc;
@@ -23,13 +24,21 @@ import java.util.ArrayList;
 public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.ViewHolder> {
     private ViewGroup parent;
     private ArrayList<Image> items;
+    private OnCheckImageSelect onCheckImageSelect;
     private boolean isSelectionMode;
+    private int selectedCnt;
 
     public ImageListAdapter(){}
 
-    public ImageListAdapter(ArrayList<Image> items) {
+    public ImageListAdapter(ArrayList<Image> items, OnCheckImageSelect onCheckImageSelect) {
         this.items = items;
         isSelectionMode = false;
+        this.onCheckImageSelect = onCheckImageSelect;
+        selectedCnt = 0;
+    }
+
+    public ArrayList<Image> getItems() {
+        return items;
     }
 
     public void setSelectionMode(boolean selectionMode) {
@@ -39,6 +48,7 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.View
             for(Image img : items){
                 img.setSelected(false);
             }
+            selectedCnt = 0;
         }
         this.notifyDataSetChanged();
     }
@@ -70,9 +80,16 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.View
 
         if(isSelectionMode){
             holder.tgl_select.setVisibility(View.VISIBLE);
-            holder.tgl_select.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+            holder.tgl_select.setChecked(item.isSelected());
+        }
+        else{
+            holder.tgl_select.setVisibility(View.INVISIBLE);
+        }
+
+        holder.tgl_select.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if(isSelectionMode){
                     item.setSelected(b);
                     Drawable alpha = holder.img_image.getDrawable();
                     if(alpha == null){
@@ -81,54 +98,27 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.View
                     if(alpha != null){
                         if(b){
                             alpha.setAlpha(50);
+                            selectedCnt++;
+                            onCheckImageSelect.checkSelectedCount(selectedCnt);
                         }
                         else{
                             alpha.setAlpha(255);
+                            selectedCnt--;
+                            onCheckImageSelect.checkSelectedCount(selectedCnt);
                         }
                     }
                 }
-            });
-            holder.tgl_select.setChecked(item.isSelected());
-            holder.img_image.setOnClickListener(new OnSingleClickListener() {
-                @Override
-                public void onClickEx(View view) {
+            }
+        });
+
+        holder.img_image.setOnClickListener(new OnSingleClickListener() {
+            @Override
+            public void onClickEx(View view) {
+                if(isSelectionMode) {
                     holder.tgl_select.setChecked(!holder.tgl_select.isChecked());
                 }
-            });
-        }
-        else{
-            holder.tgl_select.setVisibility(View.INVISIBLE);
-        }
-
-//        //현재 아이템 선택 상태에 따라 토글 버튼을 변경
-//        holder.tgl_select.setChecked(item.isSelected());
-//
-//        holder.tgl_select.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                toggleSelectState(item, holder.tgl_select, holder.linLayout_item, false);
-//            }
-//        });
-//
-//        //현재 아이템 선택 상태에 따라 레이아웃을 변경
-//        if(item.isSelected()){
-//            holder.linLayout_item.setBackgroundColor(Color.parseColor(parent.getResources().getString(R.color.colorDarkGreen)));
-//        }
-//        else{
-//            holder.linLayout_item.setBackgroundColor(Color.parseColor(parent.getResources().getString(R.color.colorDarkGray)));
-//        }
-//
-//        holder.linLayout_item.setOnClickListener(new OnSingleClickListener() {
-//            @Override
-//            public void onClickEx(View view) {
-//                if(!showSelectButton){
-//                    onClickMemoItem.onClick(item);
-//                }
-//                else{
-//                    toggleSelectState(item, holder.tgl_select, holder.linLayout_item, true);
-//                }
-//            }
-//        });
+            }
+        });
     }
 
     @Override

@@ -176,6 +176,24 @@ public class MemoActivity extends AppCompatActivity implements DataObservable {
         DataObserver.getInstance().unregister(this);
     }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        checkEmptyData();
+    }
+
+    private void checkEmptyData(){
+        //저장되어있는 데이터에 제목, 내용, 사진 전부 없다면 삭제
+        String title = memoItem.getTitle();
+        String content = memoItem.getContent();
+        if(!isNew && memoItem.getIdx() > 0 &&
+                (title == null || title.isEmpty()) &&
+                (content == null || content.isEmpty()) &&
+                memoItem.getImages().size() == 0){
+            deleteMemoEx();
+        }
+    }
+
     private void init(boolean isCreate){
         //최초 생성되어 초기화되는 경우 intent로부터 초기 데이터와 생성/수정 여부를 결정한다.
         if(isCreate){
@@ -256,6 +274,13 @@ public class MemoActivity extends AppCompatActivity implements DataObservable {
             }
         }
         else if(dataObserverNotice.getType().equals(DataObserverNotice.TYPE.INSERT_IMAGE)){
+            if(dataObserverNotice.isResult()){
+                refreshData(memoItem.getIdx(), true);
+            }
+            else{
+            }
+        }
+        else if(dataObserverNotice.getType().equals(DataObserverNotice.TYPE.DELETE_IMAGE)){
             if(dataObserverNotice.isResult()){
                 refreshData(memoItem.getIdx(), true);
             }
@@ -350,6 +375,7 @@ public class MemoActivity extends AppCompatActivity implements DataObservable {
 
     private void saveMemoEx(boolean isBack){
         if(changedFlag == false){
+            checkEmptyData();
             finishMemo(isBack);
             return;
         }

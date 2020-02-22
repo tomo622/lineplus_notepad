@@ -1,5 +1,7 @@
 package com.lineplus.notepad.view;
 
+import android.content.DialogInterface;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -8,6 +10,7 @@ import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.ToggleButton;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -15,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.lineplus.notepad.R;
 import com.lineplus.notepad.data.DataManager;
+import com.lineplus.notepad.event.OnCheckImageSelect;
 import com.lineplus.notepad.event.OnClickAddPhoto;
 import com.lineplus.notepad.event.OnSingleClickListener;
 import com.lineplus.notepad.model.Image;
@@ -65,7 +69,17 @@ ViewPhoto {
         recy_photoList = parent.findViewById(R.id.photo_recy_photoList);
 
         images = new ArrayList<>();
-        imageListAdapter = new ImageListAdapter(images);
+        imageListAdapter = new ImageListAdapter(images, new OnCheckImageSelect() {
+            @Override
+            public void checkSelectedCount(int cnt) {
+                if(cnt > 0){
+                    btn_delete.setVisibility(View.VISIBLE);
+                }
+                else{
+                    btn_delete.setVisibility(View.GONE);
+                }
+            }
+        });
 
         //////////////////////////////////////////////////
         // 바인딩
@@ -120,6 +134,9 @@ ViewPhoto {
             public void onClickEx(View view) {
                 AddPhotoDialog addPhotoDialog = new AddPhotoDialog(parent, onClickAddPhoto);
                 addPhotoDialog.show();
+                if(tgl_select.isChecked()){
+                    tgl_select.setChecked(false);
+                }
             }
         });
 
@@ -128,7 +145,7 @@ ViewPhoto {
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 imageListAdapter.setSelectionMode(b);
                 if(b){
-                    btn_delete.setVisibility(View.VISIBLE);
+                    //btn_delete.setVisibility(View.VISIBLE);
                 }
                 else{
                     btn_delete.setVisibility(View.GONE);
@@ -139,7 +156,14 @@ ViewPhoto {
         btn_delete.setOnClickListener(new OnSingleClickListener() {
             @Override
             public void onClickEx(View view) {
+                ArrayList<Image> deleteTargetImages = new ArrayList<>();
+                for(Image image : imageListAdapter.getItems()){
+                    if(image.isSelected()){
+                        deleteTargetImages.add(image);
+                    }
+                }
 
+                deleteImageEx(deleteTargetImages);
             }
         });
 
@@ -160,9 +184,43 @@ ViewPhoto {
         return memoItem.getIdx();
     }
 
+    private void deleteImageEx(final ArrayList<Image> images){
+        if(images.size() <=0 ){
+            return;
+        }
+        AlertDialog.Builder adb = new AlertDialog.Builder(parent);
+        adb.setTitle("정말 삭제하시겠습니까?");
+        adb.setPositiveButton("예", new DialogInterface.OnClickListener() {
+
+            public void onClick(DialogInterface dialog, int which) {
+                long idxs[] = new long[images.size()];
+                for(int i = 0; i < images.size(); i++){
+                    idxs[i] = images.get(i).getIdx();
+                }
+
+                DataManager.getInstance(parent).requestImagesDelete(idxs);
+                dialog.dismiss();
+            }
+
+        });
+        adb.setNegativeButton("아니오", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+        adb.show();
+    }
+
     public void setData(){
         images.clear();
         images.addAll(parent.getMemoItem().getImages());
         imageListAdapter.notifyDataSetChanged();
+
+        if(images.size() > 0){
+            tgl_select.setVisibility(View.VISIBLE);
+        }
+        else {
+            tgl_select.setVisibility(View.GONE);
+        }
     }
 }

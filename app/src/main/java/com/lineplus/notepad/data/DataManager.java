@@ -137,4 +137,16 @@ public class DataManager {
             Log.e("DATA MANAGER", "Insert image is fail.");
         }
     }
+
+    public void requestImagesDelete(long[] idxs){
+        int deletedCnt = DatabaseManager.getInstance(context).deleteImageByIdx(idxs);
+        if(deletedCnt > 0){
+            requestMemosEx();
+            NotifyObservers(DataObserverNotice.TYPE.DELETE_IMAGE, true, 0);
+        }
+        else{
+            NotifyObservers(DataObserverNotice.TYPE.DELETE_IMAGE, false, 0);
+            Log.e("DATA MANAGER", "Delete image is fail.");
+        }
+    }
 }
