@@ -5,7 +5,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
@@ -22,7 +21,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.lineplus.notepad.R;
 import com.lineplus.notepad.data.DataManager;
-import com.lineplus.notepad.data.InternalDataManager;
 import com.lineplus.notepad.event.OnCheckImageSelect;
 import com.lineplus.notepad.event.OnClickAddPhoto;
 import com.lineplus.notepad.event.OnSingleClickListener;
@@ -125,7 +123,7 @@ ViewPhoto {
                                 ActivityCompat.shouldShowRequestPermissionRationale(parent, Manifest.permission.CAMERA)) {
 
                         } else {
-                            ActivityCompat.requestPermissions(parent, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.CAMERA}, parent.PERMISSION_CODE_READ_EXTERNAL_STORAGE);
+                            ActivityCompat.requestPermissions(parent, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.CAMERA}, parent.PERMISSION_CODE_WRITE_EXTERNAL_STORAGE);
                         }
                     }
                 }

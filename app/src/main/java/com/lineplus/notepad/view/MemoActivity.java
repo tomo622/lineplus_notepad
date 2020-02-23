@@ -35,14 +35,11 @@ import com.lineplus.notepad.data.DataManager;
 import com.lineplus.notepad.data.DataObservable;
 import com.lineplus.notepad.data.DataObserver;
 import com.lineplus.notepad.data.DataObserverNotice;
-import com.lineplus.notepad.data.InternalDataManager;
 import com.lineplus.notepad.model.Image;
 import com.lineplus.notepad.model.MemoItem;
 import com.lineplus.notepad.R;
 import com.lineplus.notepad.util.GraphicFunc;
-import com.squareup.picasso.Picasso;
 
-import java.io.File;
 import java.io.InputStream;
 
 public class MemoActivity extends AppCompatActivity implements DataObservable {
