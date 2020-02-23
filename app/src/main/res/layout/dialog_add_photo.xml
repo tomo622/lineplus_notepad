@@ -7,13 +7,14 @@
     android:background="@drawable/bg_round2"
     android:divider="@drawable/layout_divider"
     android:orientation="vertical"
+    android:showDividers="middle"
     tools:context=".view.AddPhotoDialog">
 
     <Button
         android:id="@+id/addPhoto_btn_takePicture"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/btn_green"
+        android:background="@drawable/bg_btn_top_selector"
         android:text="@string/add_photo_take_picture"
         android:textColor="@color/colorGreen" />
 
@@ -21,7 +22,7 @@
         android:id="@+id/addPhoto_btn_fromAlbum"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/btn_green"
+        android:background="@drawable/bg_btn_center_selector"
         android:text="@string/add_photo_from_album"
         android:textColor="@color/colorGreen" />
 
@@ -29,7 +30,7 @@
         android:id="@+id/addPhoto_tgl_inputUrl"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/btn_green"
+        android:background="@drawable/bg_btn_bottom_selector"
         android:textColor="@color/colorGreen"
         android:textOff="@string/add_photo_input_url"
         android:textOn="@string/add_photo_input_url" />
@@ -37,12 +38,18 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/addPhoto_constLayout_inputUrl"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_btn_bottom"
+        android:paddingLeft="5dp"
+        android:paddingTop="3dp"
+        android:paddingRight="5dp"
+        android:paddingBottom="10dp">
 
         <EditText
             android:id="@+id/addPhoto_edit_url"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginRight="5dp"
             android:background="@null"
             android:ems="10"
             android:hint="@string/hint_input_url"

@@ -6,8 +6,8 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.CompoundButton;
-import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -17,6 +17,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -38,9 +39,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements DataObservable {
-    private FrameLayout frameLayout_deleteMemo;
-    private TextView txt_deleteMemo;
+    private Button btn_deleteMemo;
     private TextView txt_memoCount;
+    private TextView txt_deleteMemoCount;
     private ToggleButton tgl_selectMemo;
     private ImageButton imgBtn_addMemo;
     private RecyclerView recy_memoList;
@@ -58,9 +59,9 @@ public class MainActivity extends AppCompatActivity implements DataObservable {
         //////////////////////////////////////////////////
         // 생성
         //////////////////////////////////////////////////
-        frameLayout_deleteMemo = findViewById(R.id.main_frameLayout_deleteMemo);
-        txt_deleteMemo = findViewById(R.id.main_txt_deleteMemo);
+        btn_deleteMemo = findViewById(R.id.main_btn_deleteMemo);
         txt_memoCount = findViewById(R.id.main_txt_memoCount);
+        txt_deleteMemoCount = findViewById(R.id.main_txt_deleteMemoCount);
         tgl_selectMemo = findViewById(R.id.main_tgl_selectMemo);
         imgBtn_addMemo = findViewById(R.id.main_imgBtn_addMemo);
         recy_memoList = findViewById(R.id.main_recy_memoList);
@@ -82,11 +83,13 @@ public class MainActivity extends AppCompatActivity implements DataObservable {
         OnCheckMemoItemSelect onCheckMemoItemSelect = new OnCheckMemoItemSelect() {
             @Override
             public void checkSelectedCount(int cnt) {
-                if(cnt > 0 && !txt_deleteMemo.getText().equals(R.string.delete_memo)){
-                    txt_deleteMemo.setText(R.string.delete_memo);
+                if(cnt > 0 && !btn_deleteMemo.getText().equals(R.string.delete_memo)){
+                    btn_deleteMemo.setText(R.string.delete_memo);
+                    txt_deleteMemoCount.setText(Integer.toString(cnt) + "개 선택됨");
                 }
                 else if (cnt == 0){
-                    txt_deleteMemo.setText(R.string.delete_all_memo);
+                    btn_deleteMemo.setText(R.string.delete_all_memo);
+                    txt_deleteMemoCount.setText("");
                 }
             }
         };
@@ -123,6 +126,7 @@ public class MainActivity extends AppCompatActivity implements DataObservable {
 
         recy_memoList.setAdapter(memoListAdapter);
         recy_memoList.setLayoutManager(new LinearLayoutManager(this, RecyclerView.VERTICAL, false));
+        recy_memoList.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
 
 
         //////////////////////////////////////////////////
@@ -136,9 +140,13 @@ public class MainActivity extends AppCompatActivity implements DataObservable {
                 memoListAdapter.notifyDataSetChanged();
                 if(b){
                     memoListSwipeHelper.useSwipe(false);
+                    txt_memoCount.setVisibility(View.GONE);
+                    txt_deleteMemoCount.setVisibility(View.VISIBLE);
                 }
                 else{
                     memoListSwipeHelper.useSwipe(true);
+                    txt_memoCount.setVisibility(View.VISIBLE);
+                    txt_deleteMemoCount.setVisibility(View.GONE);
                 }
             }
         });
@@ -152,11 +160,11 @@ public class MainActivity extends AppCompatActivity implements DataObservable {
             }
         });
 
-        OnSingleClickListener onSingleClickListenerDeleteMemo = new OnSingleClickListener() {
+        btn_deleteMemo.setOnClickListener(new OnSingleClickListener() {
             @Override
             public void onClickEx(View view) {
                 //모두 삭제
-                if(txt_deleteMemo.getText().toString().equals(getResources().getString(R.string.delete_all_memo))){
+                if(btn_deleteMemo.getText().toString().equals(getResources().getString(R.string.delete_all_memo))){
                     deleteMemoEx(memoItems);
                 }
                 //선택된 메모 목록 삭제
@@ -165,9 +173,7 @@ public class MainActivity extends AppCompatActivity implements DataObservable {
                     deleteMemoEx(seletedMemoItems);
                 }
             }
-        };
-        frameLayout_deleteMemo.setOnClickListener(onSingleClickListenerDeleteMemo);
-        txt_deleteMemo.setOnClickListener(onSingleClickListenerDeleteMemo);
+        });
 
         DataManager.getInstance(this).requestMemos();
     }
@@ -236,7 +242,7 @@ public class MainActivity extends AppCompatActivity implements DataObservable {
 
     private void toggleAddDeleteButton(boolean isSelectMode){
         imgBtn_addMemo.setVisibility(isSelectMode?View.GONE:View.VISIBLE);
-        frameLayout_deleteMemo.setVisibility(isSelectMode?View.VISIBLE:View.GONE);
+        btn_deleteMemo.setVisibility(isSelectMode?View.VISIBLE:View.GONE);
     }
 
     private void deleteMemoEx(final ArrayList<MemoItem> memoItems){
@@ -270,11 +276,11 @@ public class MainActivity extends AppCompatActivity implements DataObservable {
 
         if(memoItems.size() > 0){
             tgl_selectMemo.setVisibility(View.VISIBLE);
+            txt_memoCount.setText(Integer.toString(memoItems.size()) + "개의 메모");
         }
         else{
             tgl_selectMemo.setVisibility(View.GONE);
+            txt_memoCount.setText("");
         }
-
-        txt_memoCount.setText(Integer.toString(memoItems.size()));
     }
 }

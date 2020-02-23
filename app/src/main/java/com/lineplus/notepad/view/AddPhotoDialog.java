@@ -15,6 +15,7 @@ import android.widget.ToggleButton;
 
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.ContextCompat;
 
 import com.lineplus.notepad.R;
 import com.lineplus.notepad.event.OnClickAddPhoto;
@@ -86,9 +87,11 @@ public class AddPhotoDialog extends Dialog {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 if(b){
+                    tgl_inputUrl.setBackgroundDrawable(ContextCompat.getDrawable(context, R.drawable.bg_btn_center_selector));
                     constLayout_inputUrl.setVisibility(View.VISIBLE);
                 }
                 else{
+                    tgl_inputUrl.setBackgroundDrawable(ContextCompat.getDrawable(context, R.drawable.bg_btn_bottom_selector));
                     constLayout_inputUrl.setVisibility(View.GONE);
                 }
             }
@@ -104,6 +107,7 @@ public class AddPhotoDialog extends Dialog {
         getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
         constLayout_inputUrl.setVisibility(View.GONE);
+        tgl_inputUrl.setBackgroundDrawable(ContextCompat.getDrawable(context, R.drawable.bg_btn_bottom_selector));
     }
 
     @Override

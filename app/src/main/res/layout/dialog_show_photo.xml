@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/bg_round2"
+    android:padding="8dp"
     tools:context=".view.ShowPhotoDialog">
 
     <ImageView
@@ -22,6 +23,7 @@
         android:id="@+id/show_btn_close"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:background="@color/colorTransparent"
         android:minWidth="0dp"
         android:minHeight="0dp"
         android:paddingStart="@dimen/txt_btn_frame_padding_left"

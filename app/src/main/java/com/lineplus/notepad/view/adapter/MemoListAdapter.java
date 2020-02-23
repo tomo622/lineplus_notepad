@@ -2,6 +2,7 @@ package com.lineplus.notepad.view.adapter;
 
 import android.annotation.SuppressLint;
 import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -83,7 +84,14 @@ public class MemoListAdapter extends RecyclerView.Adapter<MemoListAdapter.ViewHo
         holder.tgl_select.setVisibility(showSelectButton ? View.VISIBLE : View.GONE);
 
         holder.txt_id.setText(Long.toString(item.getIdx()));
-        holder.txt_title.setText(item.getTitle());
+        String title = item.getTitle();
+        if(title == null || title.equals("")){
+            holder.txt_title.setText("제목없음");
+        }
+        else{
+            holder.txt_title.setText(item.getTitle());
+        }
+
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Date date = new Date();
         String todayTokens[] = sdf.format(date).split(" ");
@@ -100,6 +108,7 @@ public class MemoListAdapter extends RecyclerView.Adapter<MemoListAdapter.ViewHo
             holder.txt_date.setText(item.getDate());
         }
         holder.txt_content.setText(item.getContent());
+
         if(item.getImages().size() > 0){
             Image thumbnail = item.getImages().get(0);
 
