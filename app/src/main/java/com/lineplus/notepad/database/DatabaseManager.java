@@ -4,23 +4,14 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Paint;
 import android.util.Log;
 
-import com.lineplus.notepad.R;
 import com.lineplus.notepad.model.Image;
 import com.lineplus.notepad.model.MemoItem;
-import com.lineplus.notepad.util.GraphicFunc;
-import com.squareup.picasso.Picasso;
 
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 
 public class DatabaseManager {
     private static DatabaseManager instance = null;
@@ -41,8 +32,8 @@ public class DatabaseManager {
             TABLE_NAME_IMAGE +
             "(IDX INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, " +
             "MEMO_IDX INTEGER NOT NULL, " +
-            "TYPE TEXT NOT NULL, " + //IMAGE 또는 URL
-            "BLOB_DATA BLOB, " +
+            "TYPE TEXT NOT NULL, " + //DIR 또는 URL
+            "DIR_DATA TEXT, " +
             "URL_DATA TEXT);";
 
     private Context context = null;
@@ -68,10 +59,9 @@ public class DatabaseManager {
 
         Cursor cursor = db.query(TABLE_NAME_MEMO, null, null, null, null, null, null);
 
-        if(cursor != null){
+        if(cursor != null && cursor.getCount() > 0){
             cursor.moveToFirst();
-
-            while(cursor.isAfterLast() == false){
+            do{
                 if(cursor.getColumnCount() != MEMO_COLUMN_CNT){
                     continue;
                 }
@@ -84,9 +74,8 @@ public class DatabaseManager {
                 memoItem.setImages(selectImageByMemoIdx(memoItem.getIdx()));
 
                 memoItems.add(memoItem);
-
-                cursor.moveToNext();
-            }
+            }while(cursor.moveToNext());
+            cursor.close();
         }
 
         return memoItems;
@@ -100,7 +89,7 @@ public class DatabaseManager {
 
         MemoItem memoItem = new MemoItem();
 
-        if(cursor != null){
+        if(cursor != null && cursor.getCount() > 0){
             cursor.moveToFirst();
             do{
                 if(cursor.getColumnCount() != MEMO_COLUMN_CNT){
@@ -112,6 +101,7 @@ public class DatabaseManager {
                 memoItem.setContent(cursor.getString(3));
                 memoItem.setImages(selectImageByMemoIdx(memoItem.getIdx()));
             }while(false);
+            cursor.close();
         }
 
         return memoItem;
@@ -125,10 +115,9 @@ public class DatabaseManager {
         selectionArgs[0] = Long.toString(memoIdx);
         Cursor cursor = db.query(TABLE_NAME_IMAGE, null, selection, selectionArgs, null, null, null);
 
-        if(cursor != null){
+        if(cursor != null && cursor.getCount() > 0){
             cursor.moveToFirst();
-
-            while(cursor.isAfterLast() == false){
+            do{
                 if(cursor.getColumnCount() != IMAGE_COLUMN_CNT){
                     continue;
                 }
@@ -137,8 +126,8 @@ public class DatabaseManager {
                 image.setIdx(cursor.getLong(0));
                 image.setMemoIdx(cursor.getLong(1));
                 image.setType(cursor.getString(2));
-                if(image.getType().equals("IMAGE")){
-                    image.setBitmapBytes(cursor.getBlob(3));
+                if(image.getType().equals("DIR")){
+                    image.setDir(cursor.getString(3));
                 }
                 else if(image.getType().equals("URL")){
                     image.setUrl(cursor.getString(4));
@@ -149,9 +138,8 @@ public class DatabaseManager {
                 }
 
                 images.add(image);
-
-                cursor.moveToNext();
-            }
+            }while(cursor.moveToNext());
+            cursor.close();
         }
 
         return images;
@@ -172,23 +160,31 @@ public class DatabaseManager {
     }
 
     public long insertImage(Image image){
-        if(image == null){
+        try{
+            if(image == null){
+                return -1;
+            }
+
+            ContentValues contentValues = new ContentValues();
+            contentValues.put("MEMO_IDX", image.getMemoIdx());
+            contentValues.put("TYPE", image.getType());
+            if(image.getType().equals("DIR")){
+                contentValues.put("DIR_DATA", image.getDir());
+            }
+            else if(image.getType().equals("URL")){
+                contentValues.put("URL_DATA", image.getUrl());
+            }
+            else{
+                Log.e("DB MANAGER", "Image type is nothing.");
+                return -1;
+            }
+
+            return db.insert(TABLE_NAME_IMAGE, null, contentValues);
+        }
+        catch (Exception e){
+            Log.e("DB MANAGER", "Failed to insert image. : " + e.toString());
             return -1;
         }
-        ContentValues contentValues = new ContentValues();
-        contentValues.put("MEMO_IDX", image.getMemoIdx());
-        contentValues.put("TYPE", image.getType());
-        if(image.getType().equals("IMAGE")){
-            contentValues.put("BLOB_DATA", image.getBitmapBytes());
-        }
-        else if(image.getType().equals("URL")){
-            contentValues.put("URL_DATA", image.getUrl());
-        }
-        else{
-            Log.e("DB MANAGER", "Image type is nothing.");
-            return -1;
-        }
-        return db.insert(TABLE_NAME_IMAGE, null, contentValues);
     }
 
 

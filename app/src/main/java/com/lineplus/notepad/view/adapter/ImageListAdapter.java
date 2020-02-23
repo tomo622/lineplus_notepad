@@ -72,8 +72,8 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.View
         cardViewLayoutParams.rightMargin = 1;
         holder.cardView.setLayoutParams(cardViewLayoutParams);
 
-        if(item.getType().equals("IMAGE")){
-            Bitmap bmp = GraphicFunc.bytesToBitmap(item.getBitmapBytes());
+        if(item.getType().equals("DIR")){
+            GraphicFunc.setImageByDirToImageView(parent.getContext(), item.getDir(), holder.img_image);
         }
         else if(item.getType().equals("URL")){
             GraphicFunc.setImageByUrlToImageView(parent.getContext(), item.getUrl(), holder.img_image);
@@ -100,11 +100,17 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.View
                         if(b){
                             alpha.setAlpha(50);
                             selectedCnt++;
+                            if(selectedCnt > items.size()){
+                                selectedCnt = items.size();
+                            }
                             onCheckImageSelect.checkSelectedCount(selectedCnt);
                         }
                         else{
                             alpha.setAlpha(255);
                             selectedCnt--;
+                            if(selectedCnt < 0){
+                                selectedCnt = 0;
+                            }
                             onCheckImageSelect.checkSelectedCount(selectedCnt);
                         }
                     }

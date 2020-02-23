@@ -1,7 +1,5 @@
 package com.lineplus.notepad.model;
 
-import android.graphics.Bitmap;
-
 import java.io.Serializable;
 
 public class Image implements Serializable {
@@ -10,7 +8,7 @@ public class Image implements Serializable {
     private long idx;
     private long memoIdx;
     private String type;
-    private byte[] bitmapBytes;
+    private String dir;
     private String url;
 
     private boolean selected;
@@ -18,11 +16,11 @@ public class Image implements Serializable {
     public Image(){
     }
 
-    public Image(long idx, long memoIdx, String type, byte[] bitmapBytes, String url) {
+    public Image(long idx, long memoIdx, String type, String dir, String url) {
         this.idx = idx;
         this.memoIdx = memoIdx;
         this.type = type;
-        this.bitmapBytes = bitmapBytes;
+        this.dir = dir;
         this.url = url;
     }
 
@@ -42,8 +40,8 @@ public class Image implements Serializable {
         return type;
     }
 
-    public byte[] getBitmapBytes() {
-        return bitmapBytes;
+    public String getDir() {
+        return dir;
     }
 
     public String getUrl() {
@@ -66,8 +64,8 @@ public class Image implements Serializable {
         this.type = type;
     }
 
-    public void setBitmapBytes(byte[] bitmapBytes) {
-        this.bitmapBytes = bitmapBytes;
+    public void setDir(String dir) {
+        this.dir = dir;
     }
 
     public void setUrl(String url) {

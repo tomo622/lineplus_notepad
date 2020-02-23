@@ -2,12 +2,10 @@ package com.lineplus.notepad.data;
 
 import android.content.Context;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.lineplus.notepad.database.DatabaseManager;
 import com.lineplus.notepad.model.Image;
 import com.lineplus.notepad.model.MemoItem;
-import com.lineplus.notepad.view.MemoActivity;
 
 import java.util.ArrayList;
 
@@ -99,7 +97,19 @@ public class DataManager {
         }
     }
 
-    public void requestImageInsert(Image image){
+    public void requestImageInsert(Image image, byte[] bytes){
+        if(image.getType().equals("DIR")){
+            String fileName = InternalDataManager.getInstance(context).saveFile(bytes); //내부 저장소에 이미지 저장
+            if(fileName != null && !fileName.isEmpty()){
+                image.setDir(fileName);
+            }
+            else{
+                Log.e("DATA MANAGER", "Failed to save file into internal directory");
+                return;
+            }
+        }
+
+
         boolean createMemo = false; //메모를 새로 만드는 경우
         if(image.getMemoIdx() <= 0){
             MemoItem memoItem = new MemoItem();
@@ -133,14 +143,29 @@ public class DataManager {
             }
         }
         else{
+            if(image.getType().equals("DIR")){
+                InternalDataManager.getInstance(context).deleteFile(image.getDir()); //내부저장소에 저장한 데이터 삭제
+            }
             NotifyObservers(DataObserverNotice.TYPE.INSERT, false, 0);
             Log.e("DATA MANAGER", "Insert image is fail.");
         }
     }
 
-    public void requestImagesDelete(long[] idxs){
-        int deletedCnt = DatabaseManager.getInstance(context).deleteImageByIdx(idxs);
+    public void requestImagesDelete(ArrayList<Image> deleteImages){
+        long deleteIdxs[] = new long[deleteImages.size()];
+        for(int i = 0; i < deleteIdxs.length; i++){
+            deleteIdxs[i] = deleteImages.get(i).getIdx();
+        }
+
+        int deletedCnt = DatabaseManager.getInstance(context).deleteImageByIdx(deleteIdxs);
         if(deletedCnt > 0){
+            //내부 저장소의 데이터 삭제
+            for(Image image : deleteImages){
+                if(image.getType().equals("DIR")){
+                    InternalDataManager.getInstance(context).deleteFile(image.getDir());
+                }
+            }
+
             requestMemosEx();
             NotifyObservers(DataObserverNotice.TYPE.DELETE_IMAGE, true, 0);
         }

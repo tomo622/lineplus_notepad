@@ -3,7 +3,13 @@ package com.lineplus.notepad.view;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -19,6 +25,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -28,12 +35,21 @@ import com.lineplus.notepad.data.DataManager;
 import com.lineplus.notepad.data.DataObservable;
 import com.lineplus.notepad.data.DataObserver;
 import com.lineplus.notepad.data.DataObserverNotice;
+import com.lineplus.notepad.data.InternalDataManager;
+import com.lineplus.notepad.model.Image;
 import com.lineplus.notepad.model.MemoItem;
 import com.lineplus.notepad.R;
+import com.lineplus.notepad.util.GraphicFunc;
+import com.squareup.picasso.Picasso;
+
+import java.io.File;
+import java.io.InputStream;
 
 public class MemoActivity extends AppCompatActivity implements DataObservable {
     public static final String INTENT_REQ_NEW = "INTENT_REQ_NEW";
     public static final String INTENT_REQ_ITEM = "INTENT_REQ_ITEM";
+    public static final int INTENT_CODE_GET_IMAGE_FROM_ALBUM = 0;
+    public static final int PREMISSION_CODE_READ_EXTERNAL_STORAGE = 0;
     private boolean isNew;
     private MemoItem memoItem = null;
     private boolean changedFlag;
@@ -255,6 +271,52 @@ public class MemoActivity extends AppCompatActivity implements DataObservable {
     }
 
     @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == INTENT_CODE_GET_IMAGE_FROM_ALBUM) {
+            if (resultCode == RESULT_OK) {
+                Cursor cursor = null;
+
+                try {
+                    InputStream inputStream = getContentResolver().openInputStream(data.getData());
+                    byte[] bytes = GraphicFunc.inputstreamToBytes(inputStream);
+                    inputStream.close();
+
+                    if(bytes != null && bytes.length > 0){
+                        Image image = new Image();
+                        image.setMemoIdx(getCurrentMemoIdx());
+                        image.setType("DIR");
+                        DataManager.getInstance(this).requestImageInsert(image, bytes);
+                    }
+                } catch (Exception e) {
+                    Log.e("MEMO ACTIVITY", "Getting image from album is failed. : " + e.toString());
+                }
+                finally {
+                    if (cursor != null) {
+                        cursor.close();
+                    }
+                }
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        switch (requestCode) {
+            case PREMISSION_CODE_READ_EXTERNAL_STORAGE:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    viewPhoto.getImageFromAlbumEx();
+                } else {
+
+                }
+                return;
+        }
+    }
+
+    @Override
     public void notify(DataObserverNotice dataObserverNotice) {
         //완료 버튼에 의한 추가, 수정만 들어온다.
         if(dataObserverNotice.getType().equals(DataObserverNotice.TYPE.INSERT)){
@@ -371,6 +433,13 @@ public class MemoActivity extends AppCompatActivity implements DataObservable {
             }
         });
         view.startAnimation(animate);
+    }
+
+    public long getCurrentMemoIdx(){
+        if(memoItem == null || memoItem.getIdx() <= 0){
+            return -1;
+        }
+        return memoItem.getIdx();
     }
 
     private void saveMemoEx(boolean isBack){

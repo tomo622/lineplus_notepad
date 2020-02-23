@@ -106,9 +106,13 @@ public class MemoListAdapter extends RecyclerView.Adapter<MemoListAdapter.ViewHo
             if(thumbnail.getType().equals("URL")){
                 GraphicFunc.setImageByUrlToImageView(parent.getContext(), thumbnail.getUrl(), holder.img_image);
             }
-            else if(thumbnail.getType().equals("IMAGE")){
-                holder.img_image.setImageBitmap(GraphicFunc.bytesToBitmap(thumbnail.getBitmapBytes()));
+            else if(thumbnail.getType().equals("DIR")){
+                GraphicFunc.setImageByDirToImageView(parent.getContext(), thumbnail.getDir(), holder.img_image);
             }
+            holder.img_image.setVisibility(View.VISIBLE);
+        }
+        else{
+            holder.img_image.setVisibility(View.GONE);
         }
 
 

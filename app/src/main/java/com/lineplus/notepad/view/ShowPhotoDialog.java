@@ -2,6 +2,7 @@ package com.lineplus.notepad.view;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -34,6 +35,15 @@ public class ShowPhotoDialog extends Dialog {
         this.context = context;
         this.images = images;
         this.showIndex = showIndex;
+    }
+
+    //TODO: TESTCODE
+    public ShowPhotoDialog(Context context, Image image){
+        super(context);
+        this.context = context;
+        this.images = new ArrayList<>();
+        images.add(image);
+        this.showIndex = 0;
     }
 
     @Override
@@ -112,8 +122,8 @@ public class ShowPhotoDialog extends Dialog {
         }
 
         Image showImage = images.get(showIndex);
-        if(showImage.getType().equals("IMAGE")){
-            img_image.setImageBitmap(GraphicFunc.bytesToBitmap(showImage.getBitmapBytes()));
+        if(showImage.getType().equals("DIR")){
+            GraphicFunc.setImageByDirToImageView(context, showImage.getDir(), img_image);
         }
         else if(showImage.getType().equals("URL")){
             GraphicFunc.setImageByUrlToImageView(context, showImage.getUrl(), img_image);

@@ -1,30 +1,33 @@
 package com.lineplus.notepad.view;
 
+import android.Manifest;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.CompoundButton;
-import android.widget.LinearLayout;
 import android.widget.ToggleButton;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.lineplus.notepad.R;
 import com.lineplus.notepad.data.DataManager;
+import com.lineplus.notepad.data.InternalDataManager;
 import com.lineplus.notepad.event.OnCheckImageSelect;
 import com.lineplus.notepad.event.OnClickAddPhoto;
 import com.lineplus.notepad.event.OnSingleClickListener;
 import com.lineplus.notepad.model.Image;
-import com.lineplus.notepad.model.MemoItem;
 import com.lineplus.notepad.view.adapter.ImageListAdapter;
-import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
@@ -116,15 +119,24 @@ ViewPhoto {
 
                 }
                 else if(type == TYPE.FROM_ALBUM){
+                    if(ContextCompat.checkSelfPermission(parent, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED){
+                        getImageFromAlbumEx();
+                    }
+                    else {
+                        if (ActivityCompat.shouldShowRequestPermissionRationale(parent, Manifest.permission.READ_EXTERNAL_STORAGE)) {
 
+                        } else {
+                            ActivityCompat.requestPermissions(parent, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, parent.PREMISSION_CODE_READ_EXTERNAL_STORAGE);
+                        }
+                    }
                 }
                 else if(type == TYPE.INPUT_URL){
                     String url = strParam1;
                     Image image = new Image();
-                    image.setMemoIdx(getCurrentMemoIdx());
+                    image.setMemoIdx(parent.getCurrentMemoIdx());
                     image.setType("URL");
                     image.setUrl(url);
-                    DataManager.getInstance(parent).requestImageInsert(image);
+                    DataManager.getInstance(parent).requestImageInsert(image, null);
                 }
             }
         };
@@ -176,16 +188,14 @@ ViewPhoto {
         recy_photoList.setLayoutManager(new LinearLayoutManager(parent, RecyclerView.HORIZONTAL, false));
     }
 
-    private long getCurrentMemoIdx(){
-        MemoItem memoItem = parent.getMemoItem();
-        if(memoItem == null || memoItem.getIdx() <= 0){
-            return -1;
-        }
-        return memoItem.getIdx();
+    public void getImageFromAlbumEx(){
+        Intent intent = new Intent(Intent.ACTION_PICK);
+        intent.setType(MediaStore.Images.Media.CONTENT_TYPE);
+        parent.startActivityForResult(intent, parent.INTENT_CODE_GET_IMAGE_FROM_ALBUM); //intent 결과는 MemoActivity로
     }
 
-    private void deleteImageEx(final ArrayList<Image> images){
-        if(images.size() <=0 ){
+    private void deleteImageEx(final ArrayList<Image> deleteImages){
+        if(deleteImages.size() <=0 ){
             return;
         }
         AlertDialog.Builder adb = new AlertDialog.Builder(parent);
@@ -193,12 +203,7 @@ ViewPhoto {
         adb.setPositiveButton("예", new DialogInterface.OnClickListener() {
 
             public void onClick(DialogInterface dialog, int which) {
-                long idxs[] = new long[images.size()];
-                for(int i = 0; i < images.size(); i++){
-                    idxs[i] = images.get(i).getIdx();
-                }
-
-                DataManager.getInstance(parent).requestImagesDelete(idxs);
+                DataManager.getInstance(parent).requestImagesDelete(deleteImages);
                 dialog.dismiss();
             }
 
@@ -222,5 +227,7 @@ ViewPhoto {
         else {
             tgl_select.setVisibility(View.GONE);
         }
+
+        tgl_select.setChecked(false);
     }
 }
