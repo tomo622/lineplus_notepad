@@ -116,7 +116,18 @@ ViewPhoto {
             @Override
             public void onClick(TYPE type, String strParam1) {
                 if(type == TYPE.TAKE_PICTURE){
+                    if(ContextCompat.checkSelfPermission(parent, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED &&
+                            ContextCompat.checkSelfPermission(parent, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED){
+                        getImageTakePictureEx();
+                    }
+                    else {
+                        if (ActivityCompat.shouldShowRequestPermissionRationale(parent, Manifest.permission.READ_EXTERNAL_STORAGE) &&
+                                ActivityCompat.shouldShowRequestPermissionRationale(parent, Manifest.permission.CAMERA)) {
 
+                        } else {
+                            ActivityCompat.requestPermissions(parent, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.CAMERA}, parent.PERMISSION_CODE_READ_EXTERNAL_STORAGE);
+                        }
+                    }
                 }
                 else if(type == TYPE.FROM_ALBUM){
                     if(ContextCompat.checkSelfPermission(parent, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED){
@@ -126,7 +137,7 @@ ViewPhoto {
                         if (ActivityCompat.shouldShowRequestPermissionRationale(parent, Manifest.permission.READ_EXTERNAL_STORAGE)) {
 
                         } else {
-                            ActivityCompat.requestPermissions(parent, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, parent.PREMISSION_CODE_READ_EXTERNAL_STORAGE);
+                            ActivityCompat.requestPermissions(parent, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, parent.PERMISSION_CODE_READ_EXTERNAL_STORAGE);
                         }
                     }
                 }
@@ -186,6 +197,11 @@ ViewPhoto {
 
         recy_photoList.setAdapter(imageListAdapter);
         recy_photoList.setLayoutManager(new LinearLayoutManager(parent, RecyclerView.HORIZONTAL, false));
+    }
+
+    public void getImageTakePictureEx(){
+        Intent intent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+        parent.startActivityForResult(intent, parent.INTENT_CODE_GET_IMAGE_TAKE_PICTURE);
     }
 
     public void getImageFromAlbumEx(){

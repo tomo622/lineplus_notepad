@@ -49,7 +49,9 @@ public class MemoActivity extends AppCompatActivity implements DataObservable {
     public static final String INTENT_REQ_NEW = "INTENT_REQ_NEW";
     public static final String INTENT_REQ_ITEM = "INTENT_REQ_ITEM";
     public static final int INTENT_CODE_GET_IMAGE_FROM_ALBUM = 0;
-    public static final int PREMISSION_CODE_READ_EXTERNAL_STORAGE = 0;
+    public static final int INTENT_CODE_GET_IMAGE_TAKE_PICTURE = 1;
+    public static final int PERMISSION_CODE_READ_EXTERNAL_STORAGE = 2;
+    public static final int PERMISSION_CODE_WRITE_EXTERNAL_STORAGE = 3;
     private boolean isNew;
     private MemoItem memoItem = null;
     private boolean changedFlag;
@@ -276,8 +278,6 @@ public class MemoActivity extends AppCompatActivity implements DataObservable {
 
         if (requestCode == INTENT_CODE_GET_IMAGE_FROM_ALBUM) {
             if (resultCode == RESULT_OK) {
-                Cursor cursor = null;
-
                 try {
                     InputStream inputStream = getContentResolver().openInputStream(data.getData());
                     byte[] bytes = GraphicFunc.inputstreamToBytes(inputStream);
@@ -292,11 +292,25 @@ public class MemoActivity extends AppCompatActivity implements DataObservable {
                 } catch (Exception e) {
                     Log.e("MEMO ACTIVITY", "Getting image from album is failed. : " + e.toString());
                 }
-                finally {
-                    if (cursor != null) {
-                        cursor.close();
+            }
+        }
+        else if(requestCode == INTENT_CODE_GET_IMAGE_TAKE_PICTURE){
+            if (resultCode == RESULT_OK) {
+                try{
+                    Bitmap bmp = (Bitmap) data.getExtras().get("data");
+                    byte[] bytes = GraphicFunc.bitmapToBytes(bmp);
+
+                    if(bytes != null && bytes.length > 0){
+                        Image image = new Image();
+                        image.setMemoIdx(getCurrentMemoIdx());
+                        image.setType("DIR");
+                        DataManager.getInstance(this).requestImageInsert(image, bytes);
                     }
                 }
+                catch (Exception e){
+                    Log.e("MEMO ACTIVITY", "Failed to take picture. : " + e.toString());
+                }
+
             }
         }
     }
@@ -306,9 +320,17 @@ public class MemoActivity extends AppCompatActivity implements DataObservable {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
         switch (requestCode) {
-            case PREMISSION_CODE_READ_EXTERNAL_STORAGE:
+            case PERMISSION_CODE_READ_EXTERNAL_STORAGE:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     viewPhoto.getImageFromAlbumEx();
+                } else {
+
+                }
+                return;
+
+            case PERMISSION_CODE_WRITE_EXTERNAL_STORAGE:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    viewPhoto.getImageTakePictureEx();
                 } else {
 
                 }
