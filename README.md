@@ -1,6 +1,8 @@
 # LINE 신입 개발자 채용 앱 개발 챌린지
 - 과제 내용
-  <img src="https://user-images.githubusercontent.com/19742979/76165978-8e660880-619e-11ea-8a30-d52dfb1c1d1d.png" align="center">
+  <p align="center">
+  	<img src="https://user-images.githubusercontent.com/19742979/76165978-8e660880-619e-11ea-8a30-d52dfb1c1d1d.png">
+  </p>
 - 요구사항 *(기억나는 대로만 정리함)*
   - Min SDK Version: 21
     Target SDK Version: 27
