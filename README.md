@@ -31,12 +31,17 @@
  Picasso 라이브러리를 통해 이미지 뷰에 이미지를 출력해줬다. 대상 이미지 뷰와 함께 출력하려는 이미지의 내부 저장소 경로나 URI를 파라미터로 넘겨주기만하면 되기 때문에 굉장히 편리했다. 또한 이미지 로드 실패에 대한 리스너 오버라이드 함수를 제공하고 있어 실패 처리에 대해서도 간단하게 구현할 수 있었다.
 
 ---
-
-<img src="https://user-images.githubusercontent.com/19742979/76195751-5907fc00-622c-11ea-905d-3c27bdf99014.png" align="center" width="60%">
+<p align="center">
+	<img src="https://user-images.githubusercontent.com/19742979/76195751-5907fc00-622c-11ea-905d-3c27bdf99014.png"  width="60%">
+</p>
 <p align="center"><메모 목록 및 상세보기 화면></p>
-<img src="https://user-images.githubusercontent.com/19742979/76195756-5a392900-622c-11ea-8fe8-8ce47fa996d8.png" align="center" width="100%">
+<p align="center">
+	<img src="https://user-images.githubusercontent.com/19742979/76195756-5a392900-622c-11ea-8fe8-8ce47fa996d8.png" align="center" width="100%">
+</p>
 <p align="center"><저장된 이미지 화면></p>
-<img src="https://user-images.githubusercontent.com/19742979/76195757-5ad1bf80-622c-11ea-852c-964565682fa3.png" align="center" width="100%">
+<p align="center">
+	<img src="https://user-images.githubusercontent.com/19742979/76195757-5ad1bf80-622c-11ea-852c-964565682fa3.png" align="center" width="100%">
+</p>
 <p align="center"><이미지 추가 방법></p>
 
 ---
