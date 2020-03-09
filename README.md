@@ -36,11 +36,11 @@
 <p align="center">
 	<img src="https://user-images.githubusercontent.com/19742979/76195751-5907fc00-622c-11ea-905d-3c27bdf99014.png"  width="60%">
 </p>
-<p align="center"><메모 목록 및 상세보기 화면></p>
+<p align="center"><메모 목록 및 상세보기 화면></p><br/>
 <p align="center">
 	<img src="https://user-images.githubusercontent.com/19742979/76195756-5a392900-622c-11ea-8fe8-8ce47fa996d8.png" align="center" width="100%">
 </p>
-<p align="center"><저장된 이미지 화면></p>
+<p align="center"><저장된 이미지 화면></p><br/>
 <p align="center">
 	<img src="https://user-images.githubusercontent.com/19742979/76195757-5ad1bf80-622c-11ea-852c-964565682fa3.png" align="center" width="100%">
 </p>
