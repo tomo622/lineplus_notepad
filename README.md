@@ -1,6 +1,6 @@
 # LINE 신입 개발자 채용 앱 개발 챌린지
 - 과제 내용
-  ![lineplus_notepad_image1](https://user-images.githubusercontent.com/19742979/76165978-8e660880-619e-11ea-8a30-d52dfb1c1d1d.png){: .align-center}
+  <img src="https://user-images.githubusercontent.com/19742979/76165978-8e660880-619e-11ea-8a30-d52dfb1c1d1d.png" align="center">
 - 요구사항 *(기억나는 대로만 정리함)*
   - Min SDK Version: 21
     Target SDK Version: 27
@@ -32,19 +32,12 @@
 
 ---
 
-<center>
-    <img src="https://user-images.githubusercontent.com/19742979/76195751-5907fc00-622c-11ea-905d-3c27bdf99014.png" width="60%">
-    <p><메모 목록 및 상세보기 화면></p>
-</center><br>
-<center>
-	<img src="https://user-images.githubusercontent.com/19742979/76195756-5a392900-622c-11ea-8fe8-8ce47fa996d8.png" width="100%">
-	<p><저장된 이미지 화면></p>
-</center><br>
-<center>
-	<img src="https://user-images.githubusercontent.com/19742979/76195757-5ad1bf80-622c-11ea-852c-964565682fa3.png" width="100%">
-	<p><이미지 추가 방법></p>
-</center>
-
+<img src="https://user-images.githubusercontent.com/19742979/76195751-5907fc00-622c-11ea-905d-3c27bdf99014.png" align="center" width="60%">
+<p align="center"><메모 목록 및 상세보기 화면></p>
+<img src="https://user-images.githubusercontent.com/19742979/76195756-5a392900-622c-11ea-8fe8-8ce47fa996d8.png" align="center" width="100%">
+<p align="center"><저장된 이미지 화면></p>
+<img src="https://user-images.githubusercontent.com/19742979/76195757-5ad1bf80-622c-11ea-852c-964565682fa3.png" align="center" width="100%">
+<p align="center"><이미지 추가 방법></p>
 
 ---
 
