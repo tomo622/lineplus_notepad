@@ -3,7 +3,7 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 29
     defaultConfig {
-        applicationId "com.lineplus.notepad"
+        applicationId "com.dohyun.lineplus.notepad"
         minSdkVersion 21
         targetSdkVersion 27
         versionCode 1
